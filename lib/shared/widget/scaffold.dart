@@ -1,3 +1,4 @@
+import 'package:e1547/settings/settings.dart';
 import 'package:e1547/shared/shared.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -254,7 +255,9 @@ class _AdaptiveScaffoldState extends State<AdaptiveScaffold> {
           appBar: widget.appBar,
           body: Row(children: bodyChildren),
           floatingActionButton: widget.floatingActionButton,
-          floatingActionButtonLocation: widget.floatingActionButtonLocation,
+          floatingActionButtonLocation:
+              widget.floatingActionButtonLocation ??
+              Handedness.of(context).floatingActionButtonLocation,
           floatingActionButtonAnimator: widget.floatingActionButtonAnimator,
           persistentFooterButtons: widget.persistentFooterButtons,
           drawer: effectiveDrawer,

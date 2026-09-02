@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:e1547/client/client.dart';
 import 'package:e1547/post/post.dart';
+import 'package:e1547/settings/settings.dart';
 import 'package:e1547/shared/shared.dart';
 import 'package:flutter/material.dart';
 
@@ -82,6 +83,9 @@ class PostDetail extends StatelessWidget {
         child: Scaffold(
           extendBodyBehindAppBar: true,
           appBar: PostDetailAppBar(post: post),
+          floatingActionButtonLocation: Handedness.of(
+            context,
+          ).floatingActionButtonLocation,
           floatingActionButton: context.read<Client>().hasLogin
               ? PostDetailFab(post: post)
               : null,

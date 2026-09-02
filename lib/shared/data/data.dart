@@ -3,6 +3,7 @@ export 'avatar.dart';
 export 'date.dart';
 export 'desktop.dart';
 export 'dio.dart';
+export 'direction.dart';
 export 'download.dart';
 export 'export.dart';
 export 'future.dart';

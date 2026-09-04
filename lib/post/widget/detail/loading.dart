@@ -12,15 +12,19 @@ class PostLoadingPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final client = context.watch<Client>();
-    return QueryBuilder(
-      query: client.posts.useGet(id: id),
-      builder: (context, state) => LoadingPage(
-        isLoading: state.isLoading,
-        isError: state.isError,
-        isEmpty: state.data == null,
-        onError: const Text('Failed to load post'),
-        onEmpty: const Text('Post not found'),
-        child: (context) => PostDetail(post: state.data!),
+    return FilterControllerProvider(
+      create: (_) => PostFilter(client),
+      keys: (_) => [client],
+      child: QueryBuilder(
+        query: client.posts.useGet(id: id),
+        builder: (context, state) => LoadingPage(
+          isLoading: state.isLoading,
+          isError: state.isError,
+          isEmpty: state.data == null,
+          onError: const Text('Failed to load post'),
+          onEmpty: const Text('Post not found'),
+          child: (context) => PostDetail(post: state.data!),
+        ),
       ),
     );
   }

@@ -58,7 +58,6 @@ class App extends StatelessWidget {
                     navigatorObservers: [
                       context.watch<AnyRouteObserver>(),
                       RouteLoggerObserver(),
-                      MaterialApp.createMaterialHeroController(),
                     ],
                     routes: context.watch<RouterDrawerController>().routes,
                     builder: (context, child) => WindowFrame(

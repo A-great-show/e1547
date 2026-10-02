@@ -26,8 +26,12 @@ class PostFullscreen extends StatelessWidget {
                 case PostType.video:
                   VideoPlayer? player = post.getVideo(context);
                   return Center(
-                    child: Hero(
+                    child: ContentHero(
                       tag: post.link,
+                      content: FittedContent(
+                        fit: BoxFit.contain,
+                        aspectRatio: post.width / post.height,
+                      ),
                       child: player != null
                           ? VideoGestures(
                               player: player,
@@ -114,8 +118,12 @@ class _PostFullscreenImageState extends State<_PostFullscreenImage> {
               child: Center(
                 child: AspectRatio(
                   aspectRatio: content.aspectRatio,
-                  child: Hero(
+                  child: ContentHero(
                     tag: post.link,
+                    content: FittedContent(
+                      fit: BoxFit.contain,
+                      aspectRatio: content.aspectRatio,
+                    ),
                     child: PostImageWidget(
                       post: post,
                       fit: BoxFit.cover,

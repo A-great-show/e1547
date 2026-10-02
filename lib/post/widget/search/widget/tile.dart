@@ -46,8 +46,12 @@ class PostImageTile extends StatelessWidget {
                 Expanded(
                   child: PostTileOverlay(
                     post: post,
-                    child: Hero(
+                    child: ContentHero(
                       tag: post.link,
+                      content: FittedContent(
+                        fit: fit ?? BoxFit.cover,
+                        aspectRatio: post.width / post.height,
+                      ),
                       child: PostImageWidget(
                         post: post,
                         size: size ?? PostImageSize.sample,

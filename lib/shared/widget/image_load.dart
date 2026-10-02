@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:e1547/shared/shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
@@ -8,9 +9,11 @@ const Duration imageLoadPatience = Duration(milliseconds: 250);
 const double imageLoadBar = 3;
 
 Rect? containedRect(Size content, Size size) {
-  if (content.isEmpty || size.isEmpty) return null;
-  final FittedSizes fitted = applyBoxFit(BoxFit.contain, content, size);
-  return Alignment.center.inscribe(fitted.destination, Offset.zero & size);
+  if (content.isEmpty) return null;
+  return FittedContent(
+    fit: BoxFit.contain,
+    aspectRatio: content.aspectRatio,
+  ).locate(size);
 }
 
 @immutable

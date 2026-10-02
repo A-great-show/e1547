@@ -15,6 +15,7 @@ export 'expandable.dart';
 export 'gallery.dart';
 export 'grouped.dart';
 export 'header.dart';
+export 'hero.dart';
 export 'image_load.dart';
 export 'link.dart';
 export 'loading.dart';

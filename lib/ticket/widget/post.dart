@@ -37,8 +37,12 @@ class PostReportImage extends StatelessWidget {
               isLoading: isLoading,
               child: PostImageOverlay(
                 post: post,
-                builder: (context) => Hero(
+                builder: (context) => ContentHero(
                   tag: post.link,
+                  content: FittedContent(
+                    fit: BoxFit.cover,
+                    aspectRatio: post.width / post.height,
+                  ),
                   child: PostImageWidget(
                     post: post,
                     size: PostImageSize.sample,

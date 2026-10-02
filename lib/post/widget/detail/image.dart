@@ -217,8 +217,12 @@ class PostDetailImageDisplay extends StatelessWidget {
       child: PostImageOverlay(
         post: post,
         builder: (context) => Center(
-          child: Hero(
+          child: ContentHero(
             tag: post.link,
+            content: FittedContent(
+              fit: BoxFit.contain,
+              aspectRatio: post.width / post.height,
+            ),
             child: ImageCacheSizeProvider(
               size: context.watch<ImageCacheSize?>()?.size,
               child: switch (post.type) {

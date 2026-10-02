@@ -206,7 +206,7 @@ void defaultPushPostDetail(BuildContext context, Post post) {
   final params = context.read<PostParamsController?>();
   final filter = context.read<PostFilter?>();
   Navigator.of(context).push(
-    MaterialPageRoute(
+    DismissRoute<void>(
       builder: (context) => ImageCacheSizeProvider(
         size: cacheSize,
         child: PostRouteScope(
@@ -390,7 +390,7 @@ class PostFeedTile extends StatelessWidget {
           child: PostImageTile(
             post: post,
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute(
+              DismissRoute<void>(
                 builder: (context) => ImageCacheSizeProvider(
                   size: cacheSize,
                   child: PostRouteScope(

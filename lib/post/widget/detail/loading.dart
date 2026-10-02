@@ -35,7 +35,7 @@ class PostLoadingPage extends StatelessWidget {
 void pushPostLoadingPage(BuildContext context, int id) {
   final filter = context.read<PostFilter?>();
   Navigator.of(context).push(
-    MaterialPageRoute<void>(
+    DismissRoute<void>(
       builder: (context) => PostRouteScope(
         params: null,
         filter: filter,

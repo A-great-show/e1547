@@ -73,7 +73,7 @@ class UserAvatar extends StatelessWidget {
           onTap: post == null
               ? null
               : () => Navigator.of(context).push(
-                  MaterialPageRoute(
+                  DismissRoute<void>(
                     builder: (context) => PostDetail(post: post),
                   ),
                 ),

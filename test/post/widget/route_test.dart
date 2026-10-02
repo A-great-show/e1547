@@ -13,6 +13,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:notified_preferences/notified_preferences.dart';
 
 import '../../_support/fake_e621.dart';
+import '../../_support/gestures.dart';
 import '../../_support/harness.dart';
 import '../../_support/images.dart';
 import '../../_support/posts.dart';
@@ -93,6 +94,7 @@ void main() {
             ChangeNotifierProvider<VideoService>.value(value: videos),
           ],
           child: MaterialApp(
+            theme: AppTheme.dark.data,
             navigatorObservers: [routeObserver],
             home: FilterControllerProvider<PostFilter, Post>.value(
               value: filter,
@@ -121,6 +123,18 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 100));
     });
     await tester.pump();
+  }
+
+  Future<void> openFullscreen(WidgetTester tester) async {
+    await tester.pump(const Duration(seconds: 1));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(PostDetailImageDisplay));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    for (int frame = 0; frame < 3; frame++) {
+      await tester.pump(const Duration(seconds: 1));
+    }
   }
 
   displayTest('a pushed gallery keeps the filter of its list', (tester) async {
@@ -239,4 +253,201 @@ void main() {
     expect(child.read<PostFilter?>(), same(filter));
     expect(find.text('Post is blacklisted'), findsNothing);
   });
+
+  displayTest('pulling a post detail down from its top closes it', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(PostDetail), findsOneWidget);
+
+    await tester.timedDrag(
+      find.byType(PostDetail),
+      const Offset(0, 300),
+      const Duration(seconds: 1),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(PostDetail), findsNothing);
+    expect(find.text('open'), findsOneWidget);
+  });
+
+  displayTest('dragging a fullscreen image down returns to its detail', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(PostDetailImageDisplay));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pump(const Duration(seconds: 1));
+    expect(find.byType(Zoomable), findsOneWidget);
+
+    await tester.timedDrag(
+      find.byType(Zoomable),
+      const Offset(0, 300),
+      const Duration(seconds: 1),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(PostFullscreen), findsNothing);
+    expect(find.byType(PostDetail), findsOneWidget);
+  });
+
+  displayTest('a zoomed fullscreen image pans where it has room', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(PostDetailImageDisplay));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pump(const Duration(seconds: 1));
+
+    await doubleTap(tester, tester.getCenter(find.byType(Zoomable)));
+
+    final Zoomable image = tester.widget(find.byType(Zoomable));
+    final double before = image.controller.transformation.value
+        .getTranslation()
+        .y;
+    await tester.timedDrag(
+      find.byType(Zoomable),
+      const Offset(0, -100),
+      const Duration(seconds: 1),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    final PageView pages = tester.widget(find.byType(PageView));
+    expect(pages.controller!.page, 0);
+    expect(find.byType(PostFullscreen), findsOneWidget);
+    expect(
+      image.controller.transformation.value.getTranslation().y,
+      lessThan(before - 50),
+    );
+  });
+
+  displayTest('a fullscreen swipe moves the detail beneath once it settles', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.runAsync(() async {
+      await tester.tap(find.byType(PostDetailImageDisplay));
+      await tester.pump();
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    });
+    await tester.pump(const Duration(seconds: 1));
+
+    List<int> details() => tester
+        .widgetList<PostDetail>(find.byType(PostDetail, skipOffstage: false))
+        .map((detail) => detail.post.id)
+        .toList();
+
+    final TestGesture finger = await tester.startGesture(
+      const Offset(700, 300),
+    );
+    for (int step = 0; step < 60; step++) {
+      await finger.moveBy(const Offset(-10, 0));
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    expect(details(), [1000]);
+
+    await finger.up();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(details(), [1021]);
+  });
+
+  displayTest('a fullscreen drag the system cancels stays open', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await openFullscreen(tester);
+
+    final TestGesture finger = await dragSlowly(
+      tester,
+      tester.getCenter(find.byType(Zoomable)),
+      const Offset(0, -10),
+    );
+    await finger.cancel();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(PostFullscreen), findsOneWidget);
+  });
+
+  displayTest('a swipe from the system gesture area leaves fullscreen open', (
+    tester,
+  ) async {
+    reserveBottomGestureArea(tester);
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(tester, filter, post: samplePost(id: 1000));
+    await openFullscreen(tester);
+
+    final Rect screen = tester.getRect(find.byType(Zoomable));
+    final TestGesture finger = await dragSlowly(
+      tester,
+      screen.bottomCenter - const Offset(0, 10),
+      const Offset(0, -10),
+    );
+    await finger.up();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(PostFullscreen), findsOneWidget);
+  });
+
+  displayTest(
+    'a drag that starts on the play button closes a fullscreen video',
+    (tester) async {
+      final filter = PostFilter(client);
+      addTearDown(filter.dispose);
+
+      await pushDetail(tester, filter, post: samplePost(id: 1000));
+      await openFullscreen(tester);
+      await tester.timedDrag(
+        find.byType(PostFullscreen),
+        const Offset(-500, 0),
+        const Duration(milliseconds: 500),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      await tester.timedDrag(
+        find.byType(VideoButton),
+        const Offset(0, 300),
+        const Duration(seconds: 1),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(find.byType(PostFullscreen), findsNothing);
+      expect(find.byType(PostDetail), findsOneWidget);
+    },
+  );
 }

@@ -19,6 +19,7 @@ class PostImageWidget extends StatelessWidget {
     this.fit = BoxFit.contain,
     this.cacheSize,
     this.lowResCacheSize,
+    this.load,
   });
 
   /// The post which provides the image.
@@ -42,6 +43,8 @@ class PostImageWidget extends StatelessWidget {
   /// The cache size of a previously loaded lower resolution image.
   /// Used to bridge the gap between loading a downsized image and the full sized one.
   final int? lowResCacheSize;
+
+  final ImageLoadController? load;
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +70,11 @@ class PostImageWidget extends StatelessWidget {
                 showProgress: showProgress,
                 fit: fit,
                 cacheSize: cacheSize,
+                load: load,
                 progressIndicatorBuilder: withLowRes
                     ? (context, url, progress) => ImageProgressWrapper(
                         aspectRatio: aspectRatio,
-                        progress: progress.progress,
+                        progress: load == null ? progress.progress : null,
                         child: lowResCacheSize != null
                             ? RawPostImageWidget(
                                 post: post,
@@ -94,9 +98,10 @@ class PostImageWidget extends StatelessWidget {
                 showProgress: showProgress,
                 fit: fit,
                 cacheSize: cacheSize,
+                load: load,
                 progressIndicatorBuilder: (context, url, progress) =>
                     ImageProgressWrapper(
-                      progress: progress.progress,
+                      progress: load == null ? progress.progress : null,
                       aspectRatio: aspectRatio,
                       child: RawPostImageWidget(
                         post: post,
@@ -124,6 +129,7 @@ class RawPostImageWidget extends StatelessWidget {
     this.stacked = false,
     this.showProgress = true,
     this.cacheSize,
+    this.load,
   });
 
   final Post post;
@@ -133,9 +139,11 @@ class RawPostImageWidget extends StatelessWidget {
   final bool stacked;
   final bool showProgress;
   final int? cacheSize;
+  final ImageLoadController? load;
 
   @override
   Widget build(BuildContext context) {
+    final ImageLoadController? load = this.load;
     Duration fades = stacked
         ? Duration.zero
         : const Duration(milliseconds: 500);
@@ -178,11 +186,26 @@ class RawPostImageWidget extends StatelessWidget {
       fadeInDuration: fades,
       fadeOutDuration: fades,
       imageUrl: url,
-      errorWidget: stacked
-          ? defaultErrorBuilder
-          : (context, url, error) => const SizedBox.shrink(),
+      errorWidget: (context, url, error) {
+        load?.report(url, ImageFailed(error));
+        if (!stacked) return const SizedBox.shrink();
+        return defaultErrorBuilder(context, url, error);
+      },
       progressIndicatorBuilder: showProgress || stacked
-          ? progressIndicatorBuilder ?? progressIndicator
+          ? (context, url, progress) {
+              load?.report(url, ImageLoading(progress.progress));
+              return (progressIndicatorBuilder ?? progressIndicator)(
+                context,
+                url,
+                progress,
+              );
+            }
+          : null,
+      imageBuilder: load != null
+          ? (context, image) {
+              load.report(url, const ImageLoaded());
+              return Image(image: image, fit: fit);
+            }
           : null,
       memCacheWidth: memCacheWidth,
       memCacheHeight: memCacheHeight,

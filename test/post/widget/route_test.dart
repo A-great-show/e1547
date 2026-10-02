@@ -79,6 +79,7 @@ void main() {
     WidgetTester tester,
     PostFilter filter, {
     Post? post,
+    BaseCacheManager images = const NoImageCacheManager(),
   }) async {
     final routeObserver = AnyRouteObserver();
     await tester.runAsync(() async {
@@ -86,9 +87,7 @@ void main() {
         MultiProvider(
           providers: [
             Provider<Client>.value(value: client),
-            Provider<BaseCacheManager>.value(
-              value: const NoImageCacheManager(),
-            ),
+            Provider<BaseCacheManager>.value(value: images),
             Provider<AnyRouteObserver>.value(value: routeObserver),
             Provider<Settings>.value(value: settings),
             ChangeNotifierProvider<VideoService>.value(value: videos),
@@ -130,7 +129,7 @@ void main() {
     await tester.runAsync(() async {
       await tester.tap(find.byType(PostDetailImageDisplay));
       await tester.pump();
-      await Future<void>.delayed(const Duration(milliseconds: 100));
+      await Future<void>.delayed(imageLoadPatience * 2);
     });
     for (int frame = 0; frame < 3; frame++) {
       await tester.pump(const Duration(seconds: 1));
@@ -376,6 +375,72 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(details(), [1021]);
+  });
+
+  final Finder loadBar = find.descendant(
+    of: find.byType(ImageLoadOverlay),
+    matching: find.byType(LinearProgressIndicator),
+  );
+
+  displayTest('a loading fullscreen image has its bar follow the zoom', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(
+      tester,
+      filter,
+      post: samplePost(id: 1000),
+      images: const PendingImageCacheManager(),
+    );
+    await openFullscreen(tester);
+
+    final Rect image = tester.getRect(find.byType(PostImageWidget).last);
+    expect(tester.getRect(loadBar).left, image.left);
+    expect(tester.getRect(loadBar).width, image.width);
+    expect(tester.getRect(loadBar).top, image.top);
+
+    await doubleTap(tester, tester.getCenter(find.byType(Zoomable)));
+
+    final Size screen = tester.getSize(find.byType(Zoomable));
+    expect(tester.getRect(loadBar).width, screen.width);
+    expect(tester.getRect(loadBar).width, greaterThan(image.width));
+  });
+
+  displayTest('a loading fullscreen image shows how far its download is', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(
+      tester,
+      filter,
+      post: samplePost(id: 1000),
+      images: const PendingImageCacheManager(downloaded: 40),
+    );
+    await openFullscreen(tester);
+
+    expect(tester.widget<LinearProgressIndicator>(loadBar).value, 0.4);
+  });
+
+  displayTest('a fullscreen image that failed to load has no bar', (
+    tester,
+  ) async {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(
+      tester,
+      filter,
+      post: samplePost(id: 1000),
+      images: const FailingImageCacheManager(),
+    );
+    await openFullscreen(tester);
+
+    expect(find.byType(ImageLoadOverlay), findsOneWidget);
+    expect(loadBar, findsNothing);
   });
 
   displayTest('a fullscreen drag the system cancels stays open', (

@@ -11,12 +11,6 @@ const double zoomStep = 2.5;
 const double edgeSlack = 0.5;
 const double edgeDragDecision = 4;
 
-Rect? containedRect(Size content, Size size) {
-  if (content.isEmpty || size.isEmpty) return null;
-  final FittedSizes fitted = applyBoxFit(BoxFit.contain, content, size);
-  return Alignment.center.inscribe(fitted.destination, Offset.zero & size);
-}
-
 class ZoomController extends ChangeNotifier {
   final TransformationController transformation = TransformationController();
 

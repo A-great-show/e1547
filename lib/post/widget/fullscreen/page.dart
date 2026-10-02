@@ -62,6 +62,7 @@ class _PostFullscreenImage extends StatefulWidget {
 
 class _PostFullscreenImageState extends State<_PostFullscreenImage> {
   final ZoomController zoom = ZoomController();
+  final ImageLoadController load = ImageLoadController();
 
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _PostFullscreenImageState extends State<_PostFullscreenImage> {
       );
     }
     zoom.dispose();
+    load.dispose();
     super.dispose();
   }
 
@@ -97,31 +99,50 @@ class _PostFullscreenImageState extends State<_PostFullscreenImage> {
   Widget build(BuildContext context) {
     final Post post = widget.post;
     final Size content = Size(post.width.toDouble(), post.height.toDouble());
-    return DismissPointers(
-      child: DismissTransform(
-        child: Zoomable(
-          controller: zoom,
-          content: content,
-          pan: widget.pan,
-          onSpare: onSpare,
-          onSpareEnd: onSpareEnd,
-          onSpareCancel: () => DismissController.maybeOf(context)?.settle(),
-          child: Center(
-            child: AspectRatio(
-              aspectRatio: content.aspectRatio,
-              child: Hero(
-                tag: post.link,
-                child: PostImageWidget(
-                  post: post,
-                  fit: BoxFit.cover,
-                  size: PostImageSize.file,
-                  lowResCacheSize: context.watch<ImageCacheSize?>()?.size,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        DismissPointers(
+          child: DismissTransform(
+            child: Zoomable(
+              controller: zoom,
+              content: content,
+              pan: widget.pan,
+              onSpare: onSpare,
+              onSpareEnd: onSpareEnd,
+              onSpareCancel: () => DismissController.maybeOf(context)?.settle(),
+              child: Center(
+                child: AspectRatio(
+                  aspectRatio: content.aspectRatio,
+                  child: Hero(
+                    tag: post.link,
+                    child: PostImageWidget(
+                      post: post,
+                      fit: BoxFit.cover,
+                      size: PostImageSize.file,
+                      lowResCacheSize: context.watch<ImageCacheSize?>()?.size,
+                      load: load,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
+        DismissFade(
+          child: ImageLoadOverlay(
+            load: load,
+            moves: zoom.transformation,
+            locate: (size) => switch (containedRect(content, size)) {
+              final Rect image => MatrixUtils.transformRect(
+                zoom.transformation.value,
+                image,
+              ),
+              null => null,
+            },
+          ),
+        ),
+      ],
     );
   }
 }

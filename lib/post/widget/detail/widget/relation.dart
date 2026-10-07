@@ -35,11 +35,7 @@ class PostRelationPreview extends StatelessWidget {
             post != null && filter != null && !filter.filter(post);
         return RelationPreviewCard(
           size: size,
-          onTap:
-              onTap ??
-              () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => PostLoadingPage(id)),
-              ),
+          onTap: onTap ?? () => pushPostLoadingPage(context, id),
           child: post != null && !denied
               ? PostTileOverlay(
                   post: post,
@@ -126,9 +122,7 @@ class PostRelationTile extends StatelessWidget {
           post?.tags['artist'] ?? const [],
         );
         return InkWell(
-          onTap: () => Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (context) => PostLoadingPage(id))),
+          onTap: () => pushPostLoadingPage(context, id),
           child: Row(
             children: [
               PostRelationPreview(id: id),

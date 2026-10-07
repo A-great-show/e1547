@@ -148,9 +148,7 @@ class PostDetailImageActions extends StatelessWidget {
     }
 
     Widget? showButton() {
-      if (filter == null || filter.entriesFor(post).isEmpty) {
-        return null;
-      }
+      if (filter == null || !filter.blocks(post)) return null;
       return Card(
         color: denied ? Colors.transparent : Colors.black12,
         elevation: 0,

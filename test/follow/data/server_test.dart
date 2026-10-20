@@ -91,4 +91,14 @@ void main() {
 
     expect(await refreshed.timeout(const Duration(seconds: 2)), [follow.id]);
   });
+
+  test('a cancelled sync ends and lets the next one run', () async {
+    final first = client.followServer.sync(force: true);
+    final cancelled = client.followServer.currentSync!..cancel();
+    await first.timeout(const Duration(seconds: 2));
+
+    final next = client.followServer.sync(force: true);
+    expect(client.followServer.currentSync, isNot(same(cancelled)));
+    await next.timeout(const Duration(seconds: 2));
+  });
 }

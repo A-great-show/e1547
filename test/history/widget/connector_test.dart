@@ -6,6 +6,7 @@ import 'package:e1547/identity/identity.dart';
 import 'package:e1547/pool/pool.dart';
 import 'package:e1547/post/post.dart';
 import 'package:e1547/query/query.dart';
+import 'package:e1547/settings/settings.dart';
 import 'package:e1547/shared/shared.dart';
 import 'package:e1547/traits/traits.dart';
 import 'package:flutter/material.dart';
@@ -68,36 +69,19 @@ void main() {
     await fake.stop();
   });
 
-  Future<List<History>> visit(
-    WidgetTester tester,
-    Widget Function(Widget child) connector,
-  ) async {
-    final filter = PostFilter(client);
-    addTearDown(filter.dispose);
+  Future<List<History>> open(WidgetTester tester, Widget home) async {
+    final settings = Settings(await SharedPreferences.getInstance());
     await tester.runAsync(() async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             Provider<Client>.value(value: client),
+            Provider<Settings>.value(value: settings),
             Provider<BaseCacheManager>.value(
               value: const NoImageCacheManager(),
             ),
           ],
-          child: MaterialApp(
-            home: FilterControllerProvider<PostFilter, Post>.value(
-              value: filter,
-              child: ChangeNotifierProvider(
-                create: (_) => PostParamsController(
-                  initial: const PostParams(tags: 'tag_1'),
-                ),
-                child: connector(
-                  PostPageQueryBuilder(
-                    builder: (context, state, query) => const SizedBox(),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          child: MaterialApp(home: home),
         ),
       );
       await tester.pump();
@@ -111,6 +95,29 @@ void main() {
       ),
     );
     return entries!;
+  }
+
+  Future<List<History>> visit(
+    WidgetTester tester,
+    Widget Function(Widget child) connector,
+  ) {
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+    return open(
+      tester,
+      FilterControllerProvider<PostFilter, Post>.value(
+        value: filter,
+        child: ChangeNotifierProvider(
+          create: (_) =>
+              PostParamsController(initial: const PostParams(tags: 'tag_1')),
+          child: connector(
+            PostPageQueryBuilder(
+              builder: (context, state, query) => const SizedBox(),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   List<String> samplesOf(List<int> ids) =>
@@ -198,14 +205,10 @@ void main() {
           .then(client.posts.postCache.savePage),
     );
 
-    final [entry] = await visit(
-      tester,
-      (child) => ChangeNotifierProvider(
-        create: (_) => PoolParamsController(),
-        child: PoolsHistoryConnector(child: child),
-      ),
-    );
+    final [entry] = await open(tester, const PoolsPage());
 
     expect(entry.thumbnails, samplesOf([1021]));
+    await tester.pumpWidget(const SizedBox());
+    await tester.pump(const Duration(seconds: 31));
   });
 }

@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project
 adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [21.1.0+104] - 2026-10-20
 ### Added
 - Swipe to close image
 - Preferred hand setting
@@ -982,7 +982,7 @@ adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ### Fixed
 - API client bindings
 
-[Unreleased]: https://github.com/clragon/e1547/compare/21.0.1+103...HEAD
+[21.1.0+104]: https://github.com/clragon/e1547/compare/21.0.1+103...21.1.0+104
 [21.0.1+103]: https://github.com/clragon/e1547/compare/21.0.0+102...21.0.1+103
 [21.0.0+102]: https://github.com/clragon/e1547/compare/20.5.0+101...21.0.0+102
 [20.5.0+101]: https://github.com/clragon/e1547/compare/20.4.0+100...20.5.0+101

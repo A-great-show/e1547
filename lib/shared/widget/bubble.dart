@@ -55,12 +55,13 @@ class _BubbleOverlayState extends State<BubbleOverlay>
   EdgeInsets _insets = EdgeInsets.zero;
 
   final Map<Object, bool> _snapRight = {};
+  final Map<Object, double> _sizes = {};
 
   double _sizeOf(Object id) {
     for (final OverlayBubble bubble in widget.bubbles) {
       if (bubble.id == id) return bubble.size;
     }
-    return 0;
+    return _sizes[id] ?? 0;
   }
 
   Offset _confine(Object id, Offset value) =>
@@ -274,6 +275,9 @@ class _BubbleOverlayState extends State<BubbleOverlay>
         final BoxConstraints previous = _bounds;
         _bounds = constraints;
         _insets = padding;
+        for (final OverlayBubble bubble in widget.bubbles) {
+          _sizes[bubble.id] = bubble.size;
+        }
 
         if (resized && _positions.isNotEmpty && previous.maxHeight.isFinite) {
           for (final Object id in _positions.keys.toList()) {

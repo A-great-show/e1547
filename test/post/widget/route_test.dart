@@ -7,6 +7,7 @@ import 'package:e1547/query/query.dart';
 import 'package:e1547/settings/settings.dart';
 import 'package:e1547/shared/shared.dart';
 import 'package:e1547/traits/traits.dart';
+import 'package:e1547/user/user.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -80,6 +81,7 @@ void main() {
     PostFilter filter, {
     Post? post,
     BaseCacheManager images = const NoImageCacheManager(),
+    WidgetBuilder? opener,
   }) async {
     final routeObserver = AnyRouteObserver();
     await tester.runAsync(() async {
@@ -101,11 +103,18 @@ void main() {
                 create: (_) => PostParamsController(),
                 child: ImageCacheSizeProvider(
                   size: null,
-                  child: Builder(
-                    builder: (context) => TextButton(
-                      onPressed: () =>
-                          defaultPushPostDetail(context, post ?? samplePost()),
-                      child: const Text('open'),
+                  child: KeyedSubtree(
+                    key: const ValueKey('open'),
+                    child: Builder(
+                      builder: (context) =>
+                          opener?.call(context) ??
+                          TextButton(
+                            onPressed: () => defaultPushPostDetail(
+                              context,
+                              post ?? samplePost(),
+                            ),
+                            child: const Text('open'),
+                          ),
                     ),
                   ),
                 ),
@@ -115,7 +124,9 @@ void main() {
         ),
       );
 
-      await tester.tap(find.text('open'));
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+      await tester.pump();
+      await tester.tap(find.byKey(const ValueKey('open')));
       await tester.pump();
       // The gallery queries as it opens, so that request has to land before
       // the tree is torn down.
@@ -199,6 +210,28 @@ void main() {
     });
     await tester.pump(const Duration(seconds: 1));
   }
+
+  displayTest('an avatar opens its post under the blacklist', (tester) async {
+    seedDeniedChild();
+    client.posts.postCache.set(
+      client.posts.postCache
+          .get(1049)!
+          .copyWith(sample: 'http://example.invalid/1049.jpg'),
+    );
+    final filter = PostFilter(client);
+    addTearDown(filter.dispose);
+
+    await pushDetail(
+      tester,
+      filter,
+      opener: (context) =>
+          const UserAvatar(id: 1049, userId: 1, hasCroppedAvatar: false),
+    );
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.byType(PostDetail), findsOneWidget);
+    expect(find.text('Post is blacklisted'), findsOneWidget);
+  });
 
   displayTest('a blacklisted post offers show', (tester) async {
     seedDeniedChild();

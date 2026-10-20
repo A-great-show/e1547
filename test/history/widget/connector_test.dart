@@ -68,7 +68,7 @@ void main() {
     await fake.stop();
   });
 
-  Future<History> visit(
+  Future<List<History>> visit(
     WidgetTester tester,
     Widget Function(Widget child) connector,
   ) async {
@@ -105,18 +105,46 @@ void main() {
     });
     await tester.pump();
     final entries = await tester.runAsync(() => client.histories.page());
-    final entry = entries!.single;
-    addTearDown(() => tester.runAsync(() => client.histories.remove(entry.id)));
-    return entry;
+    addTearDown(
+      () => tester.runAsync(
+        () => client.histories.removeAll(entries!.map((e) => e.id).toList()),
+      ),
+    );
+    return entries!;
   }
 
   List<String> samplesOf(List<int> ids) =>
       ids.map((id) => client.posts.postCache.get(id)!.sample!).toList();
 
+  displayTest('a post entry takes its thumbnail from what it shows', (
+    tester,
+  ) async {
+    final [allowed, denied] = (await tester.runAsync(
+      () =>
+          Future.wait([client.posts.get(id: 1021), client.posts.get(id: 1042)]),
+    ))!;
+
+    final entries = await visit(
+      tester,
+      (child) => PostHistoryConnector(
+        post: allowed,
+        child: PostHistoryConnector(post: denied, child: child),
+      ),
+    );
+
+    expect(
+      {for (final entry in entries) entry.link: entry.thumbnails},
+      {
+        allowed.link: [allowed.sample],
+        denied.link: <String>[],
+      },
+    );
+  });
+
   displayTest('a search entry takes thumbnails from posts it shows', (
     tester,
   ) async {
-    final entry = await visit(
+    final [entry] = await visit(
       tester,
       (child) => PostPageHistoryConnector(child: child),
     );
@@ -138,7 +166,7 @@ void main() {
       active: true,
     );
 
-    final entry = await visit(
+    final [entry] = await visit(
       tester,
       (child) => PoolHistoryConnector(pool: pool, child: child),
     );
@@ -170,7 +198,7 @@ void main() {
           .then(client.posts.postCache.savePage),
     );
 
-    final entry = await visit(
+    final [entry] = await visit(
       tester,
       (child) => ChangeNotifierProvider(
         create: (_) => PoolParamsController(),

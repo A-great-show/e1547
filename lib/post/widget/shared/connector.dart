@@ -19,7 +19,14 @@ class PostHistoryConnector extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ItemHistoryConnector<Post>(
     item: post,
-    getEntry: (context, item) => PostHistoryRequest.item(post: post),
+    getEntry: (context, item) {
+      final request = PostHistoryRequest.item(post: post);
+      final filter = context.read<PostFilter?>();
+      if ((filter?.denies(post) ?? false) && !post.isFavorited) {
+        return request.copyWith(thumbnails: []);
+      }
+      return request;
+    },
     child: child,
   );
 }

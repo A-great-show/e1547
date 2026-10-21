@@ -50,49 +50,36 @@ class _PostFullscreenGalleryState extends State<PostFullscreenGallery>
           builder: (context, pageController) => ScaffoldFrame(
             child: GalleryButtons(
               controller: pageController,
-              child: SubValue<GalleryPanController>(
-                create: () => GalleryPanController(pageController),
-                keys: [pageController],
-                builder: (context, pan) => ValueListenableBuilder<bool>(
-                  valueListenable: pan.locked,
-                  builder: (context, locked, child) =>
-                      NotificationListener<ScrollEndNotification>(
-                        onNotification: (notification) {
-                          final metrics = notification.metrics;
-                          final page = metrics is PageMetrics
-                              ? metrics.page
-                              : null;
-                          if (notification.depth == 0 && page != null) {
-                            widget.onPageSettled?.call(page.round());
-                          }
-                          return false;
-                        },
-                        child: PagedPageView<int, Post>(
-                          pageController: pageController,
-                          physics: locked
-                              ? const NeverScrollableScrollPhysics()
-                              : null,
-                          state: state.paging,
-                          fetchNextPage: query.getNextPage,
-                          onPageChanged: (index) {
-                            final items = state.paging.items;
-                            if (items != null && index < items.length) {
-                              postId = items[index].id;
-                            }
-                            preloadPostImages(
-                              context: context,
-                              index: index,
-                              posts: items ?? [],
-                              size: PostImageSize.file,
-                            );
-                          },
-                          builderDelegate: defaultPagedChildBuilderDelegate(
-                            onRetry: query.getNextPage,
-                            itemBuilder: (context, item, index) =>
-                                PostFullscreen(post: item, pan: pan),
-                          ),
-                        ),
-                      ),
+              child: NotificationListener<ScrollEndNotification>(
+                onNotification: (notification) {
+                  final metrics = notification.metrics;
+                  final page = metrics is PageMetrics ? metrics.page : null;
+                  if (notification.depth == 0 && page != null) {
+                    widget.onPageSettled?.call(page.round());
+                  }
+                  return false;
+                },
+                child: PagedPageView<int, Post>(
+                  pageController: pageController,
+                  state: state.paging,
+                  fetchNextPage: query.getNextPage,
+                  onPageChanged: (index) {
+                    final items = state.paging.items;
+                    if (items != null && index < items.length) {
+                      postId = items[index].id;
+                    }
+                    preloadPostImages(
+                      context: context,
+                      index: index,
+                      posts: items ?? [],
+                      size: PostImageSize.file,
+                    );
+                  },
+                  builderDelegate: defaultPagedChildBuilderDelegate(
+                    onRetry: query.getNextPage,
+                    itemBuilder: (context, item, index) =>
+                        PostFullscreen(post: item),
+                  ),
                 ),
               ),
             ),

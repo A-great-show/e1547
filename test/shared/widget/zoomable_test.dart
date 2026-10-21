@@ -178,23 +178,23 @@ void main() {
 
   late PageController pages;
 
-  Future<void> pumpPages(WidgetTester tester) async {
+  Future<void> pumpPages(
+    WidgetTester tester, {
+    Size content = const Size(1600, 800),
+  }) async {
     zoom = ZoomController();
     addTearDown(zoom.dispose);
     pages = PageController(initialPage: 1);
     addTearDown(pages.dispose);
-    final GalleryPanController pan = GalleryPanController(pages);
     await tester.pumpWidget(
       MaterialApp(
         home: PageView(
           controller: pages,
-          physics: const NeverScrollableScrollPhysics(),
           children: [
             const Text('before'),
             Zoomable(
               controller: zoom,
-              content: const Size(1600, 800),
-              pan: pan,
+              content: content,
               child: Container(color: Colors.red),
             ),
             const Text('after'),
@@ -209,8 +209,9 @@ void main() {
       const Offset(400, 300),
     );
     for (final Offset move in moves) {
-      for (int step = 0; step < 10; step++) {
-        await finger.moveBy(move / 10);
+      final int steps = (move.distance / 5).ceil();
+      for (int step = 0; step < steps; step++) {
+        await finger.moveBy(move / steps.toDouble());
         await tester.pump(const Duration(milliseconds: 16));
       }
     }
@@ -363,33 +364,6 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('a second finger down before an edge swipe is ignored', (
-    tester,
-  ) async {
-    await pumpPages(tester);
-    await zoomTo(tester, -800);
-
-    final TestGesture first = await tester.startGesture(const Offset(400, 300));
-    final TestGesture second = await tester.startGesture(
-      const Offset(200, 300),
-    );
-    for (int step = 0; step < 10; step++) {
-      await first.moveBy(const Offset(-30, 0));
-      await tester.pump(const Duration(milliseconds: 16));
-    }
-    final double swiped = pages.page!;
-    expect(swiped, greaterThan(1.3));
-    for (int step = 0; step < 10; step++) {
-      await second.moveBy(const Offset(30, 0));
-      await tester.pump(const Duration(milliseconds: 16));
-    }
-
-    expect(pages.page, closeTo(swiped, 0.01));
-    await second.up();
-    await first.up();
-    await tester.pumpAndSettle();
-  });
-
   Future<void> pinch(
     WidgetTester tester,
     double from,
@@ -445,5 +419,232 @@ void main() {
     await pinch(tester, 200, 260);
 
     expect(zoom.scale, inExclusiveRange(1.05, 1.4));
+  });
+  Future<(TestGesture, TestGesture)> squeeze(
+    WidgetTester tester, {
+    required Offset left,
+    required Offset right,
+    Offset moveLeft = Offset.zero,
+    Offset moveRight = Offset.zero,
+  }) async {
+    final TestGesture first = await tester.startGesture(left);
+    final TestGesture second = await tester.startGesture(right);
+    const int steps = 40;
+    const Duration pace = Duration(milliseconds: 16);
+    Duration at = Duration.zero;
+    for (int step = 0; step < steps; step++) {
+      at += pace;
+      await first.moveBy(moveLeft / steps.toDouble(), timeStamp: at);
+      await second.moveBy(moveRight / steps.toDouble(), timeStamp: at);
+      await tester.pump(pace);
+    }
+    return (first, second);
+  }
+
+  testWidgets('every swipe at rest moves the pages', (tester) async {
+    await pumpPages(tester);
+
+    final TestGesture short = await swipe(tester, [const Offset(-200, 0)]);
+    expect(pages.page, greaterThan(1.1));
+    await short.up();
+    await tester.pumpAndSettle();
+    expect(pages.page, 1);
+
+    final TestGesture finger = await swipe(tester, [const Offset(-500, 0)]);
+    expect(pages.page, greaterThan(1.5));
+    await finger.up();
+    await tester.pumpAndSettle();
+
+    expect(pages.page, 2);
+  });
+
+  testWidgets('a pinch at rest beside the screen edge zooms the image', (
+    tester,
+  ) async {
+    await pumpPages(tester);
+
+    final (TestGesture still, TestGesture moving) = await squeeze(
+      tester,
+      left: const Offset(780, 300),
+      right: const Offset(500, 300),
+      moveRight: const Offset(-200, 0),
+    );
+
+    expect(pages.page, 1);
+    expect(zoom.scale, closeTo(480 / 280, 0.05));
+    await still.up();
+    await moving.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a pinch on a zoomed image at its edge zooms the image', (
+    tester,
+  ) async {
+    await pumpPages(tester);
+    await zoomTo(tester, -800);
+
+    final (TestGesture left, TestGesture right) = await squeeze(
+      tester,
+      left: const Offset(300, 300),
+      right: const Offset(500, 300),
+      moveLeft: const Offset(-100, 0),
+      moveRight: const Offset(100, 0),
+    );
+
+    expect(pages.page, 1);
+    expect(zoom.scale, closeTo(4, 0.1));
+    await left.up();
+    await right.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets(
+    'a wobbly double tap after a pan returns a zoomed image to rest',
+    (tester) async {
+      await pumpPages(tester);
+      await zoomTo(tester, -400);
+      final TestGesture pan = await swipe(tester, [const Offset(-100, 0)]);
+      await pan.up();
+      await tester.pumpAndSettle();
+      expect(shiftX(), lessThan(-450));
+
+      for (int tap = 0; tap < 2; tap++) {
+        final TestGesture finger = await tester.startGesture(
+          const Offset(400, 300),
+        );
+        await finger.moveBy(const Offset(8, 0));
+        await finger.up();
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+      await tester.pumpAndSettle();
+
+      expect(zoom.transformation.value, Matrix4.identity());
+    },
+  );
+
+  testWidgets('a flung zoomed image drifts past where the finger let go', (
+    tester,
+  ) async {
+    await pump(tester);
+    zoom.transformation.value = Matrix4.identity()
+      ..translateByDouble(-400, -300, 0, 1)
+      ..scaleByDouble(2, 2, 1, 1);
+    await tester.pump();
+
+    await tester.fling(find.byType(Zoomable), const Offset(100, 0), 1000);
+    await tester.pumpAndSettle();
+
+    expect(shiftX(), greaterThan(-250));
+  });
+
+  testWidgets('a quick pinch keeps zooming after the fingers lift', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    final (TestGesture left, TestGesture right) = await squeeze(
+      tester,
+      left: const Offset(300, 300),
+      right: const Offset(500, 300),
+      moveLeft: const Offset(-200, 0),
+      moveRight: const Offset(200, 0),
+    );
+    final double lifted = zoom.scale;
+    await left.up();
+    await right.up();
+    await tester.pumpAndSettle();
+
+    expect(zoom.scale, greaterThan(lifted + 0.01));
+  });
+
+  testWidgets('a trackpad scroll pans a zoomed image', (tester) async {
+    await pump(tester);
+    zoom.transformation.value = Matrix4.identity()
+      ..translateByDouble(-400, -300, 0, 1)
+      ..scaleByDouble(2, 2, 1, 1);
+    await tester.pump();
+
+    final TestPointer trackpad = TestPointer(1, PointerDeviceKind.trackpad);
+    trackpad.hover(const Offset(400, 300));
+    await tester.sendEventToBinding(trackpad.scroll(const Offset(30, 50)));
+    await tester.pump();
+
+    expect(zoom.scale, 2);
+    expect(shiftX(), closeTo(-430, 0.01));
+    expect(zoom.transformation.value.getTranslation().y, closeTo(-350, 0.01));
+  });
+  testWidgets('a zoomed image narrower than the screen hands sideways swipes '
+      'to the pages', (tester) async {
+    await pumpPages(tester, content: const Size(800, 1600));
+    zoom.transformation.value = Matrix4.identity()
+      ..translateByDouble(-200, -150, 0, 1)
+      ..scaleByDouble(1.5, 1.5, 1, 1);
+    await tester.pump();
+
+    final TestGesture finger = await swipe(tester, [const Offset(-500, 0)]);
+    expect(pages.page, greaterThan(1.5));
+    await finger.up();
+    await tester.pumpAndSettle();
+
+    expect(pages.page, 2);
+  });
+
+  testWidgets('a pinch stops at the deepest zoom', (tester) async {
+    await pump(tester);
+
+    final (TestGesture left, TestGesture right) = await squeeze(
+      tester,
+      left: const Offset(375, 300),
+      right: const Offset(425, 300),
+      moveLeft: const Offset(-375, 0),
+      moveRight: const Offset(375, 0),
+    );
+
+    expect(zoom.scale, closeTo(1.5 * zoomReach, 0.001));
+    await left.up();
+    await right.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a pinch in at rest keeps the image at its fitted size', (
+    tester,
+  ) async {
+    await pump(tester);
+
+    final (TestGesture left, TestGesture right) = await squeeze(
+      tester,
+      left: const Offset(200, 300),
+      right: const Offset(600, 300),
+      moveLeft: const Offset(150, 0),
+      moveRight: const Offset(-150, 0),
+    );
+
+    expect(zoom.scale, zoomMin);
+    await left.up();
+    await right.up();
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('a trackpad pinch inside the pages zooms the image', (
+    tester,
+  ) async {
+    await pumpPages(tester);
+
+    final TestGesture trackpad = await tester.createGesture(
+      kind: PointerDeviceKind.trackpad,
+    );
+    await trackpad.panZoomStart(const Offset(400, 300));
+    for (int step = 1; step <= 10; step++) {
+      await trackpad.panZoomUpdate(
+        const Offset(400, 300),
+        scale: 1 + step / 10,
+      );
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+
+    expect(pages.page, 1);
+    expect(zoom.scale, greaterThan(1.5));
+    await trackpad.panZoomEnd();
+    await tester.pumpAndSettle();
   });
 }

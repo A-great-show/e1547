@@ -3,10 +3,9 @@ import 'package:e1547/shared/shared.dart';
 import 'package:flutter/material.dart';
 
 class PostFullscreen extends StatelessWidget {
-  const PostFullscreen({super.key, required this.post, this.pan});
+  const PostFullscreen({super.key, required this.post});
 
   final Post post;
-  final GalleryPanController? pan;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +21,7 @@ class PostFullscreen extends StatelessWidget {
             builder: (context) {
               switch (post.type) {
                 case PostType.image:
-                  return _PostFullscreenImage(post: post, pan: pan);
+                  return _PostFullscreenImage(post: post);
                 case PostType.video:
                   VideoPlayer? player = post.getVideo(context);
                   return Center(
@@ -55,10 +54,9 @@ class PostFullscreen extends StatelessWidget {
 }
 
 class _PostFullscreenImage extends StatefulWidget {
-  const _PostFullscreenImage({required this.post, this.pan});
+  const _PostFullscreenImage({required this.post});
 
   final Post post;
-  final GalleryPanController? pan;
 
   @override
   State<_PostFullscreenImage> createState() => _PostFullscreenImageState();
@@ -69,25 +67,11 @@ class _PostFullscreenImageState extends State<_PostFullscreenImage> {
   final ImageLoadController load = ImageLoadController();
 
   @override
-  void initState() {
-    super.initState();
-    zoom.addListener(onZoom);
-  }
-
-  @override
   void dispose() {
-    final GalleryPanController? pan = widget.pan;
-    if (pan != null && zoom.isZoomed) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) => pan.locked.value = false,
-      );
-    }
     zoom.dispose();
     load.dispose();
     super.dispose();
   }
-
-  void onZoom() => widget.pan?.locked.value = zoom.isZoomed;
 
   void onSpare(Offset spare) =>
       DismissController.maybeOf(context)?.push(spare.dy);
@@ -111,7 +95,6 @@ class _PostFullscreenImageState extends State<_PostFullscreenImage> {
             child: Zoomable(
               controller: zoom,
               content: content,
-              pan: widget.pan,
               onSpare: onSpare,
               onSpareEnd: onSpareEnd,
               onSpareCancel: () => DismissController.maybeOf(context)?.settle(),

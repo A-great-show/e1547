@@ -3,13 +3,15 @@ import 'dart:math';
 import 'package:e1547/shared/shared.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 
 const double zoomMin = 1;
 const double zoomReach = 6;
 const double zoomSnap = 0.08;
 const double zoomStep = 2.5;
+const double zoomWheel = kDefaultMouseScrollToScaleFactor;
+const double zoomFriction = 0.0000135;
 const double edgeSlack = 0.5;
-const double edgeDragDecision = 4;
 
 class ZoomController extends ChangeNotifier {
   final TransformationController transformation = TransformationController();
@@ -40,7 +42,6 @@ class Zoomable extends StatefulWidget {
     required this.child,
     required this.controller,
     required this.content,
-    this.pan,
     this.onTap,
     this.onSpare,
     this.onSpareEnd,
@@ -50,7 +51,6 @@ class Zoomable extends StatefulWidget {
   final Widget child;
   final ZoomController controller;
   final Size content;
-  final GalleryPanController? pan;
   final VoidCallback? onTap;
   final void Function(Offset spare)? onSpare;
   final void Function(Velocity velocity)? onSpareEnd;
@@ -60,49 +60,51 @@ class Zoomable extends StatefulWidget {
   State<Zoomable> createState() => _ZoomableState();
 }
 
-class _ZoomableState extends State<Zoomable>
-    with SingleTickerProviderStateMixin {
+enum _ZoomGesture { pan, scale }
+
+class _ZoomableState extends State<Zoomable> with TickerProviderStateMixin {
   late final AnimationController animation = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 200),
   );
+  late final AnimationController coast = AnimationController(vsync: this);
   Animation<Matrix4>? _flight;
+  VoidCallback? _coasting;
   TapDownDetails? _lastTap;
 
   TransformationController get transformation =>
       widget.controller.transformation;
-
-  bool _zoomed = false;
 
   @override
   void initState() {
     super.initState();
     transformation.addListener(_clamp);
     transformation.addListener(widget.controller._read);
-    widget.controller.addListener(_onZoom);
     animation.addListener(_onFlight);
+    coast.addListener(_onCoast);
   }
 
   @override
   void dispose() {
     transformation.removeListener(_clamp);
     transformation.removeListener(widget.controller._read);
-    widget.controller.removeListener(_onZoom);
     animation
       ..removeListener(_onFlight)
       ..dispose();
+    coast
+      ..removeListener(_onCoast)
+      ..dispose();
     super.dispose();
-  }
-
-  void _onZoom() {
-    final bool zoomed = widget.controller.isZoomed;
-    if (zoomed != _zoomed) setState(() => _zoomed = zoomed);
   }
 
   void _onFlight() {
     if (_flight case final Animation<Matrix4> value) {
       transformation.value = value.value;
     }
+  }
+
+  void _onCoast() {
+    if (coast.isAnimating) _coasting?.call();
   }
 
   void _settle() {
@@ -182,6 +184,29 @@ class _ZoomableState extends State<Zoomable>
   Offset get _shift =>
       MatrixUtils.transformPoint(transformation.value, Offset.zero);
 
+  void _translate(Offset scene) {
+    transformation.value = transformation.value.clone()
+      ..translateByDouble(scene.dx, scene.dy, 0, 1);
+  }
+
+  void _scaleBy(double change) {
+    if (change == 1) return;
+    final double current = transformation.value.getMaxScaleOnAxis();
+    final double limit = _coverIn(_viewport) * zoomReach;
+    final double by = (current * change).clamp(zoomMin, limit) / current;
+    transformation.value = transformation.value.clone()
+      ..scaleByDouble(by, by, by, 1);
+  }
+
+  void _scaleAround(double change, Offset focal) {
+    final Offset before = transformation.toScene(focal);
+    _scaleBy(change);
+    _translate(transformation.toScene(focal) - before);
+  }
+
+  bool _canMove(Offset moved) =>
+      moved.dx != 0 && !_pinned(Axis.horizontal, leading: moved.dx > 0);
+
   Offset? _panned;
   bool _fromTop = false;
   bool _fromBottom = false;
@@ -212,8 +237,6 @@ class _ZoomableState extends State<Zoomable>
     if (leading) return shift >= -scale * begin - edgeSlack;
     return shift <= extent - scale * end + edgeSlack;
   }
-
-  bool _outward(double dx) => _pinned(Axis.horizontal, leading: dx > 0);
 
   void _onStart(ScaleStartDetails details) {
     _panned = _shift;
@@ -251,119 +274,226 @@ class _ZoomableState extends State<Zoomable>
     }
   }
 
+  _ZoomGesture? _gesture;
+  double? _scaleStart;
+  Offset? _reference;
+
+  void _start(ScaleStartDetails details) {
+    _onStart(details);
+    coast.stop();
+    _coasting = null;
+    _gesture = null;
+    _scaleStart = transformation.value.getMaxScaleOnAxis();
+    _reference = transformation.toScene(details.localFocalPoint);
+  }
+
+  void _update(ScaleUpdateDetails details) {
+    final _ZoomGesture kind = details.scale != 1
+        ? _ZoomGesture.scale
+        : _ZoomGesture.pan;
+    _gesture = _gesture == _ZoomGesture.scale ? _gesture : kind;
+    final Offset reference = _reference!;
+    switch (_gesture!) {
+      case _ZoomGesture.scale:
+        final double scale = transformation.value.getMaxScaleOnAxis();
+        _scaleBy(_scaleStart! * details.scale / scale);
+        _translate(transformation.toScene(details.localFocalPoint) - reference);
+        final Offset check = transformation.toScene(details.localFocalPoint);
+        if ((check - reference).distance > 1e-9) _reference = check;
+      case _ZoomGesture.pan:
+        _translate(transformation.toScene(details.localFocalPoint) - reference);
+        _reference = transformation.toScene(details.localFocalPoint);
+    }
+    _coastFocus = details.localFocalPoint;
+    _onUpdate(details);
+  }
+
+  Offset _coastFocus = Offset.zero;
+
+  void _end(ScaleEndDetails details) {
+    _onEnd(details);
+    _scaleStart = null;
+    _reference = null;
+    if (!widget.controller.isZoomed) return;
+    switch (_gesture) {
+      case _ZoomGesture.pan:
+        final Offset velocity = details.velocity.pixelsPerSecond;
+        if (velocity.distance < kMinFlingVelocity) return;
+        final Offset from = _shift;
+        final Offset to = Offset(
+          FrictionSimulation(zoomFriction, from.dx, velocity.dx).finalX,
+          FrictionSimulation(zoomFriction, from.dy, velocity.dy).finalX,
+        );
+        final Animation<Offset> drift = Tween<Offset>(
+          begin: from,
+          end: to,
+        ).chain(CurveTween(curve: Curves.decelerate)).animate(coast);
+        _coasting = () =>
+            transformation.value = transformation.value.clone()
+              ..setTranslationRaw(drift.value.dx, drift.value.dy, 0);
+        _glide(_coastTime(velocity.distance));
+      case _ZoomGesture.scale:
+        if (details.scaleVelocity.abs() < 0.1) return;
+        final double from = transformation.value.getMaxScaleOnAxis();
+        final double time = _coastTime(
+          details.scaleVelocity.abs(),
+          motionless: 0.1,
+        );
+        final Animation<double> swell = Tween<double>(
+          begin: from,
+          end: FrictionSimulation(
+            zoomFriction * zoomWheel,
+            from,
+            details.scaleVelocity / 10,
+          ).x(time),
+        ).chain(CurveTween(curve: Curves.decelerate)).animate(coast);
+        final Offset focus = _coastFocus;
+        _coasting = () => _scaleAround(
+          swell.value / transformation.value.getMaxScaleOnAxis(),
+          focus,
+        );
+        _glide(time);
+      case null:
+        break;
+    }
+  }
+
+  double _coastTime(double velocity, {double motionless = 10}) =>
+      log(motionless / velocity) / log(zoomFriction / 100);
+
+  void _glide(double seconds) {
+    coast.duration = Duration(milliseconds: (seconds * 1000).round());
+    coast.forward(from: 0);
+  }
+
+  void _onSignal(PointerSignalEvent event) {
+    final Offset local = event.localPosition;
+    final ScaleStartDetails start = ScaleStartDetails(
+      focalPoint: event.position,
+      localFocalPoint: local,
+    );
+    final double change;
+    switch (event) {
+      case PointerScrollEvent(kind: PointerDeviceKind.trackpad):
+        final Offset delta = PointerEvent.transformDeltaViaPositions(
+          untransformedEndPosition: event.position + event.scrollDelta,
+          untransformedDelta: event.scrollDelta,
+          transform: event.transform,
+        );
+        _onStart(start);
+        _translate(
+          transformation.toScene(local - delta) - transformation.toScene(local),
+        );
+        _onUpdate(
+          ScaleUpdateDetails(
+            focalPoint: event.position - event.scrollDelta,
+            localFocalPoint: local - delta,
+            focalPointDelta: -delta,
+          ),
+        );
+        _onEnd(ScaleEndDetails());
+        return;
+      case PointerScrollEvent(:final Offset scrollDelta):
+        if (scrollDelta.dy == 0) return;
+        change = exp(-scrollDelta.dy / zoomWheel);
+      case PointerScaleEvent(:final double scale):
+        change = scale;
+      default:
+        return;
+    }
+    _onStart(start);
+    _scaleAround(change, local);
+    _onUpdate(
+      ScaleUpdateDetails(
+        focalPoint: event.position,
+        localFocalPoint: local,
+        scale: change,
+      ),
+    );
+    _onEnd(ScaleEndDetails());
+  }
+
   @override
   Widget build(BuildContext context) {
-    final GalleryPanController? pan = widget.pan;
     return GestureDetector(
       onTap: widget.onTap,
       onDoubleTapDown: (details) => _lastTap = details,
       onDoubleTap: _cycle,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final Size viewport = constraints.biggest;
-          return InteractiveViewer(
-            transformationController: transformation,
-            onInteractionStart: _onStart,
-            onInteractionUpdate: _onUpdate,
-            onInteractionEnd: _onEnd,
-            boundaryMargin: const EdgeInsets.all(double.infinity),
-            minScale: zoomMin,
-            maxScale: _coverIn(viewport) * zoomReach,
-            clipBehavior: Clip.none,
-            child: RawGestureDetector(
-              behavior: HitTestBehavior.opaque,
-              gestures: {
-                if (pan != null && _zoomed)
-                  EdgeDragGestureRecognizer:
-                      GestureRecognizerFactoryWithHandlers<
-                        EdgeDragGestureRecognizer
-                      >(
-                        () => EdgeDragGestureRecognizer(
-                          outward: _outward,
-                          onUpdate: pan.push,
-                          onEnd: pan.release,
-                        ),
-                        (recognizer) {},
-                      ),
-              },
-              child: widget.child,
-            ),
-          );
-        },
+      child: Listener(
+        onPointerSignal: _onSignal,
+        child: RawGestureDetector(
+          behavior: HitTestBehavior.opaque,
+          gestures: {
+            ZoomGestureRecognizer:
+                GestureRecognizerFactoryWithHandlers<ZoomGestureRecognizer>(
+                  () => ZoomGestureRecognizer(
+                    canMove: _canMove,
+                    debugOwner: this,
+                  ),
+                  (recognizer) => recognizer
+                    ..dragStartBehavior = DragStartBehavior.start
+                    ..gestureSettings = MediaQuery.maybeGestureSettingsOf(
+                      context,
+                    )
+                    ..onStart = _start
+                    ..onUpdate = _update
+                    ..onEnd = _end,
+                ),
+          },
+          child: ListenableBuilder(
+            listenable: transformation,
+            builder: (context, child) =>
+                Transform(transform: transformation.value, child: child),
+            child: widget.child,
+          ),
+        ),
       ),
     );
   }
 }
 
-class EdgeDragGestureRecognizer extends OneSequenceGestureRecognizer {
-  EdgeDragGestureRecognizer({
-    required this.outward,
-    required this.onUpdate,
-    required this.onEnd,
-  });
+class ZoomGestureRecognizer extends ScaleGestureRecognizer {
+  ZoomGestureRecognizer({required this.canMove, super.debugOwner});
 
-  final bool Function(double dx) outward;
-  final ValueChanged<double> onUpdate;
-  final ValueChanged<double> onEnd;
+  final bool Function(Offset moved) canMove;
 
+  final Map<int, Offset> _positions = {};
+  Offset? _focal;
   Offset _travel = Offset.zero;
-  bool _accepted = false;
-  VelocityTracker? _velocity;
-  int? _pointer;
-
-  @override
-  String get debugDescription => 'edge drag';
-
-  @override
-  void addAllowedPointer(PointerDownEvent event) {
-    if (_pointer != null) return;
-    _pointer = event.pointer;
-    super.addAllowedPointer(event);
-    _travel = Offset.zero;
-    _accepted = false;
-    _velocity = VelocityTracker.withKind(event.kind)
-      ..addPosition(event.timeStamp, event.position);
-  }
 
   @override
   void handleEvent(PointerEvent event) {
-    if (event is PointerMoveEvent) {
-      _velocity?.addPosition(event.timeStamp, event.position);
-      if (_accepted) {
-        onUpdate(event.delta.dx);
-        return;
-      }
-      _travel += event.delta;
-      if (_travel.distance < edgeDragDecision) return;
-      final bool sideways = _travel.dx.abs() > _travel.dy.abs();
-      resolve(
-        sideways && outward(_travel.dx)
-            ? GestureDisposition.accepted
-            : GestureDisposition.rejected,
-      );
-    } else if (event is PointerUpEvent || event is PointerCancelEvent) {
-      if (_accepted) {
-        onEnd(_velocity?.getVelocity().pixelsPerSecond.dx ?? 0);
-      } else {
-        resolve(GestureDisposition.rejected);
-      }
-      _pointer = null;
-      stopTrackingPointer(event.pointer);
+    switch (event) {
+      case PointerDownEvent():
+        if (_positions.isEmpty) _travel = Offset.zero;
+        _positions[event.pointer] = event.position;
+      case PointerMoveEvent(synthesized: false):
+        _positions[event.pointer] = event.position;
+      case PointerUpEvent() || PointerCancelEvent():
+        _positions.remove(event.pointer);
+      default:
+        break;
     }
+    final Offset? before = _focal;
+    _focal = _positions.isEmpty
+        ? null
+        : _positions.values.reduce((a, b) => a + b) /
+              _positions.length.toDouble();
+    if (event is PointerMoveEvent && before != null && _focal != null) {
+      final Offset moved = _focal! - before;
+      _travel += moved;
+      final bool slid =
+          _travel.distance > computeHitSlop(event.kind, gestureSettings);
+      if (_positions.length > 1 || (slid && canMove(moved))) {
+        acceptGesture(event.pointer);
+      }
+    }
+    super.handleEvent(event);
   }
 
   @override
-  void acceptGesture(int pointer) {
-    _accepted = true;
-    onUpdate(_travel.dx);
+  void didStopTrackingLastPointer(int pointer) {
+    _positions.clear();
+    super.didStopTrackingLastPointer(pointer);
   }
-
-  @override
-  void rejectGesture(int pointer) {
-    _pointer = null;
-    stopTrackingPointer(pointer);
-  }
-
-  @override
-  void didStopTrackingLastPointer(int pointer) {}
 }

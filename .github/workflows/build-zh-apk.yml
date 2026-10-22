@@ -1,0 +1,140 @@
+name: Build Chinese APK
+
+# 构建简体中文版 e1547 APK（非官方修改版，GPL-3.0）。
+#
+# 流程：checkout -> 安装 Flutter（版本取自 pubspec.yaml）-> flutter pub get
+#       -> tool/l10n/apply_zh.py 打汉化补丁 -> 打包「对应源码」
+#       -> flutter build apk -> 发布 APK + 源码包 + LICENSE。
+#
+# GPL-3.0 §6 要求分发目标码时同时提供「对应源码」，因此 Release 里会一并上传
+# 打完补丁的源码压缩包（e1547-zh-cn-source.tar.gz）与许可证全文（LICENSE）。
+#
+# 不需要任何自签证书：android/app/build.gradle.kts 在找不到 android/keys/key.properties
+# 时会回退到 debug 签名，因此产物可以直接安装。
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - zh-cn
+    paths-ignore:
+      # 只改文档不重新打包；词条与代码的改动都要重新打包
+      - '**.md'
+      - 'tool/l10n/extracted.txt'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zh-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Build APK (zh-CN)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: setup actions
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: parse flutter version
+        run: |
+          export FLUTTER_VERSION=$(./.github/workflows/get_flutter_version.sh)
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+
+      - name: setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: get flutter dependencies
+        run: flutter pub get
+
+      - name: apply chinese patch
+        run: python3 tool/l10n/apply_zh.py
+
+      - name: verify patch
+        run: |
+          if git diff --quiet; then
+            echo "::warning::汉化补丁没有修改任何文件，请检查 tool/l10n/zh_cn.json"
+          else
+            git diff --stat
+          fi
+
+      - name: package corresponding source
+        run: |
+          mkdir -p out
+          # GPL-3.0 §6：随二进制提供「对应源码」，即打完汉化补丁后的完整源码树
+          # （含 pubspec、android / iOS 工程、补丁脚本与构建工作流）
+          tar czf out/e1547-zh-cn-source.tar.gz \
+            --exclude='./.git' \
+            --exclude='./build' \
+            --exclude='./.dart_tool' \
+            --exclude='./.gradle' \
+            --exclude='./out' \
+            .
+          cp LICENSE out/LICENSE
+          ls -lh out
+
+      - name: build APK
+        run: flutter build apk --release
+
+      - name: collect artifacts
+        run: |
+          cp build/app/outputs/apk/release/*.apk out/
+          ls -lh out
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: e1547-zh-apk
+          path: |
+            out/*.apk
+            out/e1547-zh-cn-source.tar.gz
+            out/LICENSE
+          retention-days: 30
+
+      - name: publish to releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="zh-cn-latest"
+          # 用 heredoc 写说明，再用 sed 去掉 YAML 缩进，避免 markdown 被当成代码块
+          NOTES=$(cat <<'EOF' | sed 's/^[[:space:]]*//'
+          e1547 简体中文版 —— **非官方修改版**（基于 GPL-3.0 授权的 clynamic/e1547 修改）
+
+          **修改声明（GPL-3.0 §5(a)）**：本构建由 A-great-show 于 2026 年起持续修改，
+          修改内容为界面文案简体中文化（构建期字符串补丁）与应用内固定 `zh_CN` locale。
+          与原作者 clragon 无关，未获其背书。
+
+          **包含文件**
+
+          * `app-arm64-v8a-release.apk` — 现代手机（2019 年后）
+          * `app-armeabi-v7a-release.apk` — 旧设备
+          * `app-universal-release.apk` — 不确定时选这个
+          * `e1547-zh-cn-source.tar.gz` — **对应源码**（已应用汉化补丁，GPL-3.0 §6）
+          * `LICENSE` — GNU GPL v3.0 全文
+
+          **安装提示**：本包为 debug 签名，与官方版本签名不同。若已安装官方版，请先卸载，
+          否则会提示「应用未安装」。请勿用官方公开的证书指纹校验本包。
+
+          **构建可复现**：`flutter pub get && python3 tool/l10n/apply_zh.py && flutter build apk --release`
+
+          本构建同样以 GNU GPL v3.0 发布；再分发请遵守该许可证。
+          EOF
+          )
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" \
+            --title "e1547 简体中文版（自动构建）" \
+            --notes "$NOTES" \
+            --prerelease
+          gh release edit "$TAG" --notes "$NOTES"
+          gh release upload "$TAG" out/* --clobber

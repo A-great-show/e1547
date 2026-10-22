@@ -1,0 +1,46 @@
+{
+  "_readme": "第二批词条：举报/标记删除原因、更新提示、视频提示、同步通知、历史限制说明等。含 $x / ${...} / {x} 插值时必须原样保留占位符。",
+  "strings": {
+    "Posts featuring human and human-like characters depicted in a sexual or explicit nude way, are not acceptable on this site.": "本站不接受以性暗示或露骨裸体方式描绘人类及类人角色的帖子。",
+    "The artist of this post is on the \"avoid posting list\":/static/avoid_posting": "该作者位于 \"禁止发布\" 名单：/static/avoid_posting",
+    "We do not host paysite or commercial content of any kind. This includes Patreon leaks, reposts from piracy websites, and so on.": "本站不存放任何付费或商业内容，包括 Patreon 泄漏、盗版站点转载等。",
+    "Young [[human]]-[[humanoid|like]] character in an explicit situation": "处于露骨情境下的幼态 [[human|人类]]-[[humanoid|类人]] 角色",
+    "The notes on this post are wrong, harassive, or otherwise abusive.": "该帖的注释有误、带有骚扰或其他滥用内容。",
+    "One or more of the listed sources link to malicious pages or pay content.": "所列来源中至少有一个指向恶意页面或付费内容。",
+    "The description contains malicious content, or has been edited to contain abusive material.": "描述含有恶意内容，或被修改为包含滥用内容。",
+    "The file contains either malicious code or contains a hidden file archive. This is not for imagery depicted in the image itself.": "文件含有恶意代码或内嵌了隐藏压缩包（不是指画面内容本身）。",
+    "The rating of the submission has been set to something incorrect.": "该帖的分级设置有误。",
+
+    "A newer version is available: ${data.first.version}": "有新版本可用：${data.first.version}",
+    "${videoSeekStep.inSeconds * combo} seconds": "${videoSeekStep.inSeconds * combo} 秒",
+    "Tag preview failed": "标签预览失败",
+    "Error loading tag preview: $e": "加载标签预览出错：$e",
+    "PostFullscreen received an unsupported image!": "全屏视图收到不支持的图片！",
+    "Generic file downloading is not supported on iOS": "iOS 上不支持通用文件下载",
+
+    "Synced {done} of {total} follows": "已同步 {done}/{total} 个关注",
+    "Synced {total} follows for {user} on {host}": "已在 {host} 上为 {user} 同步 {total} 个关注",
+    "Sync failed for {user} on {host}": "{host} 上 {user} 的关注同步失败",
+    "Sync cancelled for {user} on {host}": "{host} 上 {user} 的关注同步已取消",
+    "{tags} has {unseen} new posts": "{tags} 有 {unseen} 个新帖子",
+
+    "${data.selections.length} logs": "${data.selections.length} 条日志",
+    "${data.selections.length} log files": "${data.selections.length} 个日志文件",
+    "Logs - ${data.selections.first.date}": "日志 - ${data.selections.first.date}",
+    "${recording.name.pascalCase} and above": "${recording.name.pascalCase} 及以上",
+    "+${frames.length - limit} more": "还有 +${frames.length - limit} 条",
+
+    "${updated != null && updated!.isAfter(created) ? ' (edited)' : ''}": "${updated != null && updated!.isAfter(created) ? '（已编辑）' : ''}",
+    "and all entries older than ${trimAge.inDays ~/ 30} months are automatically deleted.": "，并且早于 ${trimAge.inDays ~/ 30} 个月的记录会被自动删除。",
+    "less than ${NumberFormat.compact().format(trimAmount)} entries.": "少于 ${NumberFormat.compact().format(trimAmount)} 条记录。",
+
+    "Videos muted: {muted}": "视频静音：{muted}",
+    "Page {page} failed": "第 {page} 页加载失败",
+    "Task {task} failed": "任务 {task} 失败",
+    "Task {task} ({action}) failed": "任务 {task}（{action}）失败",
+    "Uncaught framework error": "未捕获的框架错误",
+    "Cannot select an item which is not part of items!": "无法选中不在列表中的项目！",
+    "Checkbox value cannot be null!": "复选框的值不能为空！",
+    "Cannot specify both comparison and end value.": "不能同时指定比较运算符和结束值。"
+  }
+}

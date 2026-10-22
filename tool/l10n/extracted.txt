@@ -1,0 +1,651 @@
+# e1547 待翻译字符串清单
+#
+# 这是由 tool/l10n/extract_strings.py 自动生成的文件，请勿手工编辑。
+# 格式：出现次数 | 类型 | 字面量 | 示例文件
+# 补充翻译时，把字面量原样作为 key 写进 tool/l10n/zh_cn*.json 的 strings 即可。
+#
+# 未翻译条目：643（疑似界面文案 274，其余可能是技术性字符串）
+
+    6  UI  name  |  lib/account/data/client.dart
+    1  UI  ${entry.key}=${entry.value}  |  lib/account/widget/cookie.dart
+    1  UI  __cf  |  lib/account/widget/cookie.dart
+    1  UI  cf_  |  lib/account/widget/cookie.dart
+    1  UI  cf_chl  |  lib/account/widget/cookie.dart
+    2  UI  binaryfloof  |  lib/app/data/initialize.dart
+    2  UI  ios  |  lib/app/data/task.dart
+    1  UI  ${e.error}  |  lib/app/data/background.dart
+    1  UI  ${logFileDateFormat.format(DateTime.now())}${postfix != null ? '.$postfix' : ''}$logFileExtension  |  lib/app/data/initialize.dart
+    1  UI  Cancelled {task}: {reason}  |  lib/app/data/background.dart
+    1  UI  LoadingShellState(loading: $loading, message: $message, error: $error)  |  lib/app/widget/loading.dart
+    1  UI  MRwKGqfmUz  |  lib/app/data/initialize.dart
+    1  UI  PRAGMA foreign_keys = ON  |  lib/app/data/storage.dart
+    1  UI  android  |  lib/app/data/task.dart
+    1  UI  app  |  lib/app/data/initialize.dart
+    1  UI  app.db  |  lib/app/data/initialize.dart
+    1  UI  background  |  lib/app/data/background.dart
+    1  UI  clragon/e1547  |  lib/app/data/initialize.dart
+    1  UI  e1547.clynamic.net  |  lib/app/data/initialize.dart
+    1  UI  errors  |  lib/app/widget/bubbles.dart
+    1  UI  one_off  |  lib/app/data/task.dart
+    1  UI  periodic  |  lib/app/data/task.dart
+    1  UI  support@clynamic.net  |  lib/app/data/initialize.dart
+    1  UI  tasks  |  lib/app/widget/bubbles.dart
+    2  UI  Basic ${base64Encode(utf8.encode('$username:$password'))}  |  lib/client/data/credentials.dart
+    2  UI  username  |  lib/client/data/credentials.dart
+    1  UI  $host/api_keys  |  lib/client/data/factory.dart
+    1  UI  $host/users/new  |  lib/client/data/factory.dart
+    1  UI  NoUserLoginException  |  lib/client/data/actions.dart
+    1  UI  apikey  |  lib/client/data/credentials.dart
+    1  UI  score:>=20  |  lib/client/data/factory.dart
+    2  UI  float  |  lib/comment/widget/fab.dart
+    1  UI  comment_$id  |  lib/comment/data/actions.dart
+    1  UI  .$extension  |  lib/files/data/service.dart
+    1  UI  file_cache_lookup  |  lib/files/data/storage.dart
+    1  UI  file_cache_touched  |  lib/files/data/storage.dart
+    1  UI  Trace of another artist's work  |  lib/flag/data/flag.dart
+    1  UI  corrupt  |  lib/flag/data/flag.dart
+    1  UI  dnp_artist  |  lib/flag/data/flag.dart
+    1  UI  e621:flag_for_deletion  |  lib/flag/widget/create.dart
+    1  UI  inferior  |  lib/flag/data/flag.dart
+    1  UI  pay_content  |  lib/flag/data/flag.dart
+    1  UI  previously_deleted  |  lib/flag/data/flag.dart
+    1  UI  real_porn  |  lib/flag/data/flag.dart
+    1  UI  trace  |  lib/flag/data/flag.dart
+    1  UI  uploading_guidelines  |  lib/flag/data/flag.dart
+    1  UI  young_human  |  lib/flag/data/flag.dart
+    1  UI  search[has_unseen]  |  lib/follow/data/client.dart
+    1  UI  search[tags]  |  lib/follow/data/client.dart
+    1  UI  search[title]  |  lib/follow/data/client.dart
+    1  UI  search[type]  |  lib/follow/data/client.dart
+    8  UI  tags  |  lib/history/data/actions.dart
+    1  UI  /forum_topics/${topic.id}  |  lib/history/data/requests.dart
+    1  UI  /users/${user.name}  |  lib/history/data/requests.dart
+    1  UI  /wiki_pages/${wiki.title}  |  lib/history/data/requests.dart
+    3  UI  JetBrains Mono  |  lib/logs/widget/card.dart
+    1  UI  $name    |  lib/logs/widget/card.dart
+    1  UI  ${DateFormatting.dateTime(date)} ${type != null ? ' ($type)' : ''}  |  lib/logs/data/file.dart
+    1  UI  ${e.key}=${e.value}  |  lib/logs/data/interceptor.dart
+    1  UI  ${encodeLogValue(attributes[name])}  |  lib/logs/data/entry.dart
+    1  UI  ${encodeLogValue(value)}  |  lib/logs/widget/card.dart
+    1  UI  ${errors.length}  |  lib/logs/widget/bubble.dart
+    1  UI  ${level.name} | $time | $source: $event  |  lib/logs/data/entry.dart
+    1  UI  ${reason.substring(0, reasonLimit)}…  |  lib/logs/data/interceptor.dart
+    1  UI  ${uri.path}?$rendered  |  lib/logs/data/interceptor.dart
+    1  UI  :   |  lib/logs/data/format.dart
+    1  UI  Logs${date != null ? ' - ${DateFormatting.date(date)}' : ''}  |  lib/logs/widget/logs.dart
+    1  UI  {method} {path} failed with {status}: {reason}  |  lib/logs/data/interceptor.dart
+    8  UI  pool  |  lib/markup/data/grammar.dart
+    6  UI  artist  |  lib/markup/data/grammar.dart
+    4  UI  post  |  lib/markup/data/grammar.dart
+    4  UI  wiki  |  lib/markup/data/grammar.dart
+    3  UI  alias  |  lib/markup/data/grammar.dart
+    3  UI  blip  |  lib/markup/data/grammar.dart
+    3  UI  comment  |  lib/markup/data/grammar.dart
+    3  UI  forum  |  lib/markup/data/grammar.dart
+    3  UI  newline expected  |  lib/markup/data/grammar.dart
+    3  UI  set  |  lib/markup/data/grammar.dart
+    3  UI  user  |  lib/markup/data/grammar.dart
+    2  UI  ${parts.$1}${parts.$2}  |  lib/markup/data/grammar.dart
+    2  UI  /posts/  |  lib/markup/data/grammar.dart
+    2  UI  ban  |  lib/markup/data/grammar.dart
+    2  UI  flag  |  lib/markup/data/grammar.dart
+    2  UI  id-link expected  |  lib/markup/data/grammar.dart
+    2  UI  implication  |  lib/markup/data/grammar.dart
+    2  UI  note  |  lib/markup/data/grammar.dart
+    2  UI  record  |  lib/markup/data/grammar.dart
+    2  UI  takedown  |  lib/markup/data/grammar.dart
+    2  UI  ticket  |  lib/markup/data/grammar.dart
+    2  UI  topic  |  lib/markup/data/grammar.dart
+    1  UI  #$anchor  |  lib/markup/data/grammar.dart
+    1  UI  #${parts.$2}  |  lib/markup/data/grammar.dart
+    1  UI  ${'  ' * item.depth}•   |  lib/markup/widget/text.dart
+    1  UI  ${DTextGrammar._idDisplay[type]!} #$id  |  lib/markup/data/grammar.dart
+    1  UI  ${DTextGrammar._idRoutes[type]!}$id  |  lib/markup/data/grammar.dart
+    1  UI  /${parts.$2}  |  lib/markup/data/grammar.dart
+    1  UI  /artists/  |  lib/markup/data/grammar.dart
+    1  UI  /bans/  |  lib/markup/data/grammar.dart
+    1  UI  /blips/  |  lib/markup/data/grammar.dart
+    1  UI  /bulk_update_requests/  |  lib/markup/data/grammar.dart
+    1  UI  /comments/  |  lib/markup/data/grammar.dart
+    1  UI  /forum_posts/  |  lib/markup/data/grammar.dart
+    1  UI  /forum_topics/  |  lib/markup/data/grammar.dart
+    1  UI  /mod_actions/  |  lib/markup/data/grammar.dart
+    1  UI  /notes/  |  lib/markup/data/grammar.dart
+    1  UI  /pools/  |  lib/markup/data/grammar.dart
+    1  UI  /post_flags/  |  lib/markup/data/grammar.dart
+    1  UI  /post_sets/  |  lib/markup/data/grammar.dart
+    1  UI  /post_versions?search[post_id]=  |  lib/markup/data/grammar.dart
+    1  UI  /tag_aliases/  |  lib/markup/data/grammar.dart
+    1  UI  /tag_implications/  |  lib/markup/data/grammar.dart
+    1  UI  /takedowns/  |  lib/markup/data/grammar.dart
+    1  UI  /tickets/  |  lib/markup/data/grammar.dart
+    1  UI  /user_feedbacks/  |  lib/markup/data/grammar.dart
+    1  UI  /users/  |  lib/markup/data/grammar.dart
+    1  UI  /wiki_pages/  |  lib/markup/data/grammar.dart
+    1  UI  BUR  |  lib/markup/data/grammar.dart
+    1  UI  bold  |  lib/markup/data/types.dart
+    1  UI  close tag not active  |  lib/markup/data/grammar.dart
+    1  UI  code_block  |  lib/markup/data/types.dart
+    1  UI  document  |  lib/markup/data/types.dart
+    1  UI  end of input  |  lib/markup/data/grammar.dart
+    1  UI  expected /  |  lib/markup/data/grammar.dart
+    1  UI  expected [  |  lib/markup/data/grammar.dart
+    1  UI  fragment  |  lib/markup/data/types.dart
+    1  UI  inline_code  |  lib/markup/data/types.dart
+    1  UI  inline_spoiler  |  lib/markup/data/types.dart
+    1  UI  internal_anchor  |  lib/markup/data/types.dart
+    1  UI  italic  |  lib/markup/data/types.dart
+    1  UI  line_break  |  lib/markup/data/types.dart
+    1  UI  link  |  lib/markup/data/types.dart
+    1  UI  list  |  lib/markup/data/types.dart
+    1  UI  list_item  |  lib/markup/data/types.dart
+    1  UI  literal_html  |  lib/markup/data/types.dart
+    1  UI  mod action  |  lib/markup/data/grammar.dart
+    1  UI  no active container  |  lib/markup/data/grammar.dart
+    1  UI  no closing ]  |  lib/markup/data/grammar.dart
+    1  UI  not a close tag  |  lib/markup/data/grammar.dart
+    1  UI  not a newline  |  lib/markup/data/grammar.dart
+    1  UI  not at line start  |  lib/markup/data/grammar.dart
+    1  UI  paragraph  |  lib/markup/data/types.dart
+    1  UI  post changes  |  lib/markup/data/grammar.dart
+    1  UI  raw_block_text  |  lib/markup/data/types.dart
+    1  UI  section,expanded=  |  lib/markup/widget/editor.dart
+    1  UI  single-newline stop disabled  |  lib/markup/data/grammar.dart
+    1  UI  spoiler_block  |  lib/markup/data/types.dart
+    1  UI  strikeout  |  lib/markup/data/types.dart
+    1  UI  subscript  |  lib/markup/data/types.dart
+    1  UI  superscript  |  lib/markup/data/types.dart
+    1  UI  table_body  |  lib/markup/data/types.dart
+    1  UI  table_cell  |  lib/markup/data/types.dart
+    1  UI  table_head  |  lib/markup/data/types.dart
+    1  UI  table_literal  |  lib/markup/data/types.dart
+    1  UI  table_row  |  lib/markup/data/types.dart
+    1  UI  text  |  lib/markup/data/types.dart
+    1  UI  underline  |  lib/markup/data/types.dart
+   11  UI  order  |  lib/pool/widget/input.dart
+    3  UI  false  |  lib/pool/widget/input.dart
+    3  UI  true  |  lib/pool/widget/input.dart
+    2  UI  category  |  lib/pool/widget/input.dart
+    2  UI  description  |  lib/pool/data/json.dart
+    1  UI  #${pool.id}  |  lib/pool/widget/info.dart
+    1  UI  /pools/$id  |  lib/pool/data/actions.dart
+    1  UI  activity  |  lib/pool/widget/info.dart
+    1  UI  description_matches  |  lib/pool/widget/input.dart
+    1  UI  inactive  |  lib/pool/widget/info.dart
+    1  UI  name_matches  |  lib/pool/widget/input.dart
+    1  UI  pool:${pool.id}  |  lib/pool/widget/prompt.dart
+    1  UI  pool:${pool.id} order:${PostOrder.newest.value}  |  lib/pool/widget/pool.dart
+    1  UI  post_ids  |  lib/pool/data/json.dart
+    1  UI  search[$value]  |  lib/pool/widget/input.dart
+    1  UI  share  |  lib/pool/widget/prompt.dart
+    5  UI  file  |  lib/post/data/json.dart
+    4  UI  deleted  |  lib/post/data/actions.dart
+    2  UI  content  |  lib/post/data/download.dart
+    2  UI  height  |  lib/post/data/json.dart
+    2  UI  status  |  lib/post/data/params.dart
+    2  UI  width  |  lib/post/data/json.dart
+    1  UI  #$id  |  lib/post/widget/detail/widget/relation.dart
+    1  UI  #$postId sources  |  lib/post/widget/edit/widget/sources.dart
+    1  UI  #${post.id}  |  lib/post/widget/detail/widget/artist.dart
+    1  UI  $id.$ext  |  lib/post/data/download.dart
+    1  UI  ${post.commentCount}  |  lib/post/widget/search/widget/tile.dart
+    1  UI  ${post.id}.${post.ext}  |  lib/post/widget/search/widget/snackbar.dart
+    1  UI  ${post.width} x ${post.height}  |  lib/post/widget/detail/widget/file.dart
+    1  UI  -$s  |  lib/post/data/editing.dart
+    1  UI  -$t  |  lib/post/data/editing.dart
+    1  UI  -$tag  |  lib/post/data/params.dart
+    1  UI  /posts/$id  |  lib/post/data/actions.dart
+    1  UI  com.android.externalstorage.documents  |  lib/post/data/download.dart
+    1  UI  date  |  lib/post/data/params.dart
+    1  UI  deletion  |  lib/post/widget/detail/widget/deletion.dart
+    1  UI  ext  |  lib/post/data/json.dart
+    1  UI  fav:${client.identity.username}  |  lib/post/widget/search/favs.dart
+    1  UI  hide  |  lib/post/widget/detail/image.dart
+    1  UI  inpool  |  lib/post/data/params.dart
+    1  UI  ischild  |  lib/post/data/params.dart
+    1  UI  isparent  |  lib/post/data/params.dart
+    1  UI  kb  |  lib/post/data/actions.dart
+    1  UI  mb  |  lib/post/data/actions.dart
+    1  UI  pools  |  lib/post/data/json.dart
+    1  UI  rating:${post.rating.name}  |  lib/post/widget/detail/widget/file.dart
+    1  UI  size  |  lib/post/data/json.dart
+    1  UI  sources  |  lib/post/data/json.dart
+    1  UI  total  |  lib/post/data/json.dart
+    1  UI  unavailable  |  lib/post/widget/search/widget/tile.dart
+    1  UI  unsupported  |  lib/post/widget/search/widget/tile.dart
+    1  UI  ~$e  |  lib/post/data/client.dart
+    1  UI  ["$identityKeyTag",$identity,%  |  lib/query/data/storage.dart
+    1  UI  reply_$id  |  lib/reply/data/actions.dart
+    1  UI  $appName/$version ($developer)  |  lib/settings/data/info.dart
+    1  UI  ...  |  lib/settings/widget/database.dart
+    1  UI  /blacklist  |  lib/settings/widget/settings.dart
+    1  UI  /history  |  lib/settings/widget/settings.dart
+    1  UI  GitHub  |  lib/settings/widget/about.dart
+    1  UI  Ko-fi  |  lib/settings/widget/about.dart
+    1  UI  e1547_database_backup.db  |  lib/settings/widget/database.dart
+    1  UI  import  |  lib/settings/widget/database.dart
+    1  UI  mailto:  |  lib/settings/widget/about.dart
+    1  UI  $location inset by ($left, $right)  |  lib/shared/widget/scaffold.dart
+    1  UI  $runtimeType: $inner  |  lib/shared/data/download.dart
+    1  UI  $runtimeType: $message  |  lib/shared/data/download.dart
+    1  UI  $runtimeType: unknown cause!  |  lib/shared/data/download.dart
+    1  UI  $value  |  lib/shared/widget/range.dart
+    1  UI  $value..$endValue  |  lib/shared/widget/range.dart
+    1  UI  ${reference.substring(0, index)}/data/avatars/$userId.jpg?t=$avatarId  |  lib/shared/data/avatar.dart
+    1  UI  ${split('').take(limit).join()}...  |  lib/shared/data/text.dart
+    1  UI  .*${RegExp.escape(this)}.*  |  lib/shared/data/text.dart
+    1  UI  <$value  |  lib/shared/widget/range.dart
+    1  UI  <=$value  |  lib/shared/widget/range.dart
+    1  UI  >$value  |  lib/shared/widget/range.dart
+    1  UI  >=$value  |  lib/shared/widget/range.dart
+    1  UI  StreamFuture<$T> from $_stream  |  lib/shared/data/future.dart
+    1  UI  #$comment  |  lib/tag/data/node.dart
+    1  UI  $prefix( ${children.join(' ')} )  |  lib/tag/data/node.dart
+    1  UI  $search*  |  lib/tag/data/client.dart
+    1  UI  ^[-~]  |  lib/tag/data/actions.dart
+    1  UI  ^fav:  |  lib/tag/data/regex.dart
+    1  UI  consequent_name  |  lib/tag/data/client.dart
+    1  UI  count  |  lib/tag/data/client.dart
+    2  UI  active  |  lib/task/widget/list_view.dart
+    1  UI  cancel  |  lib/task/widget/actions.dart
+    1  UI  dismiss  |  lib/task/widget/actions.dart
+    1  UI  done  |  lib/task/widget/list_view.dart
+    1  UI  download  |  lib/task/widget/tile.dart
+    1  UI  downloaded  |  lib/task/widget/tile.dart
+    1  UI  downloading  |  lib/task/widget/tile.dart
+    1  UI  failed  |  lib/task/widget/list_view.dart
+    1  UI  favorite  |  lib/task/widget/tile.dart
+    1  UI  favorited  |  lib/task/widget/tile.dart
+    1  UI  favoriting  |  lib/task/widget/tile.dart
+    1  UI  retry  |  lib/task/widget/actions.dart
+    1  UI  unfavorite  |  lib/task/widget/tile.dart
+    1  UI  unfavorited  |  lib/task/widget/tile.dart
+    1  UI  unfavoriting  |  lib/task/widget/tile.dart
+    1  UI  dmail  |  lib/ticket/data/type.dart
+    1  UI  e621:report_post  |  lib/ticket/widget/post.dart
+    2  UI  locked  |  lib/topic/widget/prompt.dart
+    2  UI  no  |  lib/topic/widget/prompt.dart
+    2  UI  title  |  lib/topic/data/json.dart
+    1  UI   •   |  lib/topic/widget/tile.dart
+    1  UI  #${topic.id}  |  lib/topic/widget/prompt.dart
+    1  UI  /forum_topics/$id  |  lib/topic/data/actions.dart
+    1  UI  search[category_id]  |  lib/topic/data/params.dart
+    1  UI  search[is_locked]  |  lib/topic/data/params.dart
+    1  UI  search[is_sticky]  |  lib/topic/data/params.dart
+    1  UI  search[order]  |  lib/topic/data/params.dart
+    1  UI  search[title_matches]  |  lib/topic/data/params.dart
+    1  UI  visible  |  lib/topic/widget/drawer.dart
+    1  UI  e621:blacklist  |  lib/traits/widget/editor.dart
+    1  UI  /users/$name  |  lib/user/data/actions.dart
+    1  UI  #${wiki.id}  |  lib/wiki/widget/info.dart
+    1  UI  /wiki_pages/$title  |  lib/wiki/data/actions.dart
+    1  UI  other_names  |  lib/wiki/data/json.dart
+   28  --  dart:io  |  lib/account/widget/availability.dart
+    4  --  ;   |  lib/account/widget/cookie.dart
+    1  --  Availability check cancelled  |  lib/account/widget/availability.dart
+    1  --  Availability check failed ({status})  |  lib/account/widget/availability.dart
+    1  --  Behind a Cloudflare challenge, resolving  |  lib/account/widget/availability.dart
+    1  --  Client denied access ({status}), failing silently  |  lib/account/widget/availability.dart
+    1  --  Client is available  |  lib/account/widget/availability.dart
+    1  --  Client unavailable ({status}), cannot resolve  |  lib/account/widget/availability.dart
+    1  --  ClientAvailability  |  lib/account/widget/availability.dart
+    1  --  CookieCapture  |  lib/account/widget/cookie.dart
+    1  --  Failed to capture cookies  |  lib/account/widget/cookie.dart
+    1  --  Please resolve the issue in the following browser window.   |  lib/account/widget/unavailable.dart
+    1  --  avatar_id  |  lib/account/data/client.dart
+    1  --  blacklisted_tags  |  lib/account/data/client.dart
+    1  --  has_cropped_avatar  |  lib/account/data/client.dart
+    1  --  per_page  |  lib/account/data/client.dart
+   39  --  dart:async  |  lib/app/data/task.dart
+   11  --  dart:convert  |  lib/app/widget/notifications.dart
+    6  --  id  |  lib/app/widget/notifications.dart
+    3  --  $_showEnding  |  lib/app/data/link.dart
+    2  --  $dbPath.new  |  lib/app/data/initialize.dart
+    2  --  /:name  |  lib/app/data/link.dart
+    2  --  BackgroundTasks  |  lib/app/data/background.dart
+    2  --  CN  |  lib/app/widget/app.dart
+    2  --  Registered {schedule} {task} on {platform}  |  lib/app/data/task.dart
+    2  --  US  |  lib/app/widget/app.dart
+    2  --  e621.net  |  lib/app/data/link.dart
+    2  --  e926.net  |  lib/app/data/link.dart
+    2  --  en  |  lib/app/widget/app.dart
+    2  --  follows  |  lib/app/data/navigation.dart
+    2  --  onboardingSeen  |  lib/app/data/initialize.dart
+    2  --  zh  |  lib/app/widget/app.dart
+    1  --  /pool  |  lib/app/data/link.dart
+    1  --  /post  |  lib/app/data/link.dart
+    1  --  /subscriptions  |  lib/app/widget/notifications.dart
+    1  --  /user  |  lib/app/data/link.dart
+    1  --  /wiki_pages  |  lib/app/data/link.dart
+    1  --  :_(s|/show)  |  lib/app/data/link.dart
+    1  --  Background worker initialized  |  lib/app/data/task.dart
+    1  --  Failed to parse notification payload  |  lib/app/widget/notifications.dart
+    1  --  Finished {task}  |  lib/app/data/background.dart
+    1  --  Flutter  |  lib/app/data/initialize.dart
+    1  --  NotificationRouter  |  lib/app/widget/notifications.dart
+    1  --  Running {task}  |  lib/app/data/background.dart
+    1  --  SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks_table'  |  lib/app/data/storage.dart
+    1  --  Task $task is unknown!  |  lib/app/data/background.dart
+    1  --  Unknown notification type {type}  |  lib/app/widget/notifications.dart
+    1  --  Unregistered {task}  |  lib/app/data/task.dart
+    1  --  collections  |  lib/app/data/navigation.dart
+    1  --  search  |  lib/app/data/navigation.dart
+    1  --  settings  |  lib/app/data/navigation.dart
+    1  --  vm:entry-point  |  lib/app/data/background.dart
+    3  --  password  |  lib/client/data/credentials.dart
+    2  --  (?<username>.+):(?<password>.+)  |  lib/client/data/credentials.dart
+    2  --  encoded  |  lib/client/data/credentials.dart
+    1  --  $attributeName="([^"]+)"  |  lib/client/data/actions.dart
+    1  --  120x120  |  lib/client/data/actions.dart
+    1  --  16x16  |  lib/client/data/actions.dart
+    1  --  <head>.*?</head>  |  lib/client/data/actions.dart
+    1  --  gore  |  lib/client/data/factory.dart
+    1  --  href  |  lib/client/data/actions.dart
+    1  --  rel  |  lib/client/data/actions.dart
+    1  --  scat  |  lib/client/data/factory.dart
+    1  --  sizes  |  lib/client/data/actions.dart
+    1  --  svg+xml  |  lib/client/data/actions.dart
+    1  --  type  |  lib/client/data/actions.dart
+    1  --  watersports  |  lib/client/data/factory.dart
+    1  --  young -rating:s  |  lib/client/data/factory.dart
+    9  --  created_at  |  lib/comment/data/json.dart
+    8  --  updated_at  |  lib/comment/data/json.dart
+    4  --  body  |  lib/comment/data/json.dart
+    4  --  creator_id  |  lib/comment/data/json.dart
+    4  --  creator_name  |  lib/comment/data/json.dart
+    4  --  score  |  lib/comment/data/json.dart
+    3  --  id_asc  |  lib/comment/data/params.dart
+    3  --  id_desc  |  lib/comment/data/params.dart
+    3  --  is_hidden  |  lib/comment/data/json.dart
+    2  --  post_id  |  lib/comment/data/json.dart
+    2  --  user:${item.creatorId}  |  lib/comment/data/filter.dart
+    2  --  vote  |  lib/comment/data/json.dart
+    2  --  warning_type  |  lib/comment/data/json.dart
+    1  --  Updated objects should have an existing id.  |  lib/files/data/storage.dart
+    1  --  max-age=  |  lib/files/data/service.dart
+    2  --  reason  |  lib/flag/data/json.dart
+    1  --  is_deletion  |  lib/flag/data/json.dart
+    1  --  is_resolved  |  lib/flag/data/json.dart
+   17  --  dart:math  |  lib/follow/data/database.dart
+    4  --  Cannot specify offset without limit!  |  lib/follow/data/database.dart
+    1  --  ${NumberFormat('0.#%').format(progressSnapshot.data ?? 0)}  |  lib/follow/widget/drawer.dart
+    1  --  Failed to load thumbnail for {tags}  |  lib/follow/data/notifications.dart
+    1  --  FollowIdentity  |  lib/follow/data/database.dart
+    1  --  FollowNotifications  |  lib/follow/data/notifications.dart
+    1  --  FollowQuery  |  lib/follow/data/query.dart
+    1  --  FollowSync  |  lib/follow/data/sync.dart
+    1  --  Force refreshing all follows  |  lib/follow/data/sync.dart
+    1  --  No pool for {tags}, set to bookmarked  |  lib/follow/data/sync.dart
+    1  --  Notified: {title} {body}  |  lib/follow/data/notifications.dart
+    1  --  Sync found {count} leftover posts  |  lib/follow/data/sync.dart
+    1  --  Sync started for {user} on {host}  |  lib/follow/data/sync.dart
+    1  --  Sync tried refreshing same follows twice!  |  lib/follow/data/sync.dart
+    1  --  net.clynamic.e1547.follows  |  lib/follow/data/notifications.dart
+    1  --  syncing follows...   |  lib/follow/widget/drawer.dart
+    1  --  Enabling history limit means all history entries beyond ${NumberFormat.compact().format(trimAmount)}   |  lib/history/widget/drawer.dart
+    1  --  HistoryIdentity  |  lib/history/data/database.dart
+    1  --  Limited to newer than ${trimAge.inDays ~/ 30} months or   |  lib/history/widget/drawer.dart
+    1  --  yyyy-MM-dd  |  lib/history/data/params.dart
+    1  --  ${uri.path}$path  |  lib/identity/data/actions.dart
+    1  --  /$path  |  lib/identity/data/actions.dart
+    1  --  1ca1d165e973d7f8d35b7deb7a2ae54c  |  lib/identity/widget/input.dart
+    1  --  IdentitiesClient failed to activate because no identity   |  lib/identity/data/client.dart
+    1  --  IdentityClient was not activated before accessing   |  lib/identity/data/client.dart
+    1  --  the identity property  |  lib/identity/data/client.dart
+    1  --  was found and no onCreate callback was provided  |  lib/identity/data/client.dart
+    4  --  dart:collection  |  lib/logs/data/errors.dart
+    2  --   |   |  lib/logs/data/format.dart
+    2  --  pushed  |  lib/logs/data/routes.dart
+    1  --  ${logFileDateFormat.format(DateTime.now())}$logFileExtension  |  lib/logs/widget/logs.dart
+    1  --  <$elided frames elided>  |  lib/logs/data/stack.dart
+    1  --  Dio  |  lib/logs/data/interceptor.dart
+    1  --  HH:mm:ss.SSS  |  lib/logs/data/format.dart
+    1  --  Received {method} {path}  |  lib/logs/data/interceptor.dart
+    1  --  Route {route} was {action}  |  lib/logs/data/routes.dart
+    1  --  Routes  |  lib/logs/data/routes.dart
+    1  --  Suppressed {count} repeats of {event}  |  lib/logs/data/dedupe.dart
+    1  --  [redacted]  |  lib/logs/data/redact.dart
+    1  --  auth  |  lib/logs/data/redact.dart
+    1  --  cookie  |  lib/logs/data/redact.dart
+    1  --  credential  |  lib/logs/data/redact.dart
+    1  --  dart:typed_data  |  lib/logs/data/source.dart
+    1  --  e1547  |  lib/logs/data/stack.dart
+    1  --  key  |  lib/logs/data/redact.dart
+    1  --  log.request_id  |  lib/logs/data/interceptor.dart
+    1  --  log.started  |  lib/logs/data/interceptor.dart
+    1  --  login  |  lib/logs/data/redact.dart
+    1  --  message  |  lib/logs/data/interceptor.dart
+    1  --  popped  |  lib/logs/data/routes.dart
+    1  --  removed  |  lib/logs/data/routes.dart
+    1  --  replaced  |  lib/logs/data/routes.dart
+    1  --  secret  |  lib/logs/data/redact.dart
+    1  --  session  |  lib/logs/data/redact.dart
+    1  --  token  |  lib/logs/data/redact.dart
+    1  --  yyyy-MM-dd-HH-mm-ss-SSS  |  lib/logs/data/file.dart
+    1  --  {method} {path}  |  lib/logs/data/interceptor.dart
+    1  --  {method} {path} cancelled  |  lib/logs/data/interceptor.dart
+    1  --  {status} {method} {path}  |  lib/logs/data/interceptor.dart
+    1  --  {status} {method} {path} in {duration_ms}ms  |  lib/logs/data/interceptor.dart
+    9  --  quote  |  lib/markup/data/grammar.dart
+    9  --  section  |  lib/markup/data/grammar.dart
+    8  --  code  |  lib/markup/data/grammar.dart
+    7  --  spoiler  |  lib/markup/data/grammar.dart
+    7  --  table  |  lib/markup/data/grammar.dart
+    6  --  ltable  |  lib/markup/data/grammar.dart
+    6  --  tr  |  lib/markup/data/grammar.dart
+    6  --  url  |  lib/markup/data/types.dart
+    4  --  ^]  |  lib/markup/data/grammar.dart
+    4  --  tbody  |  lib/markup/data/grammar.dart
+    4  --  thead  |  lib/markup/data/grammar.dart
+    3  --  spoilers  |  lib/markup/data/grammar.dart
+    3  --  td  |  lib/markup/data/grammar.dart
+    3  --  th  |  lib/markup/data/grammar.dart
+    2  --  1-6  |  lib/markup/data/grammar.dart
+    2  --  [/  |  lib/markup/data/grammar.dart
+    2  --  [A-Z]  |  lib/markup/data/grammar.dart
+    2  --  color  |  lib/markup/data/grammar.dart
+    1  --  ":  |  lib/markup/data/grammar.dart
+    1  --  $before$block$after  |  lib/markup/widget/editor.dart
+    1  --  ${parts.$2}${parts.$3}  |  lib/markup/data/grammar.dart
+    1  --  %${byte.toRadixString(16).toUpperCase().padLeft(2, '0')}  |  lib/markup/data/grammar.dart
+    1  --  %20  |  lib/markup/data/grammar.dart
+    1  --  ,expanded  |  lib/markup/data/grammar.dart
+    1  --  DText  |  lib/markup/widget/text.dart
+    1  --  [#  |  lib/markup/data/grammar.dart
+    1  --  [$blockTag]$block  |  lib/markup/widget/editor.dart
+    1  --  [/${endTag ?? blockTag}]  |  lib/markup/widget/editor.dart
+    1  --  [/tbody][/table]  |  lib/markup/data/grammar.dart
+    1  --  [/tr]  |  lib/markup/data/grammar.dart
+    1  --  [/tr][/thead][tbody]  |  lib/markup/data/grammar.dart
+    1  --  [[  |  lib/markup/data/grammar.dart
+    1  --  [color=  |  lib/markup/data/grammar.dart
+    1  --  [quote  |  lib/markup/data/grammar.dart
+    1  --  [section,expanded=  |  lib/markup/data/grammar.dart
+    1  --  [section,expanded]  |  lib/markup/data/grammar.dart
+    1  --  [section=  |  lib/markup/data/grammar.dart
+    1  --  [section]  |  lib/markup/data/grammar.dart
+    1  --  [table]  |  lib/markup/data/grammar.dart
+    1  --  [thead][tr]  |  lib/markup/data/grammar.dart
+    1  --  [tr]  |  lib/markup/data/grammar.dart
+    1  --  ]]  |  lib/markup/data/grammar.dart
+    1  --  ^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$  |  lib/markup/widget/color.dart
+    1  --  a-zA-Z0-9_-  |  lib/markup/data/grammar.dart
+    1  --  bur  |  lib/markup/data/types.dart
+    1  --  code]  |  lib/markup/data/grammar.dart
+    1  --  darkgrey  |  lib/markup/widget/color.dart
+    1  --  darkslategrey  |  lib/markup/widget/color.dart
+    1  --  dimgrey  |  lib/markup/widget/color.dart
+    1  --  forum_post  |  lib/markup/data/types.dart
+    1  --  grey  |  lib/markup/widget/color.dart
+    1  --  id_link  |  lib/markup/data/types.dart
+    1  --  inline  |  lib/markup/data/types.dart
+    1  --  lightgrey  |  lib/markup/widget/color.dart
+    1  --  lightslategrey  |  lib/markup/widget/color.dart
+    1  --  ltable]  |  lib/markup/data/grammar.dart
+    1  --  mod_action  |  lib/markup/data/types.dart
+    1  --  post_changes  |  lib/markup/data/types.dart
+    1  --  post_search  |  lib/markup/data/types.dart
+    1  --  slategrey  |  lib/markup/widget/color.dart
+    1  --  sub  |  lib/markup/data/grammar.dart
+    1  --  sup  |  lib/markup/data/grammar.dart
+    1  --  table]  |  lib/markup/data/grammar.dart
+    1  --  thumb  |  lib/markup/data/types.dart
+    1  --  unknown id-link prefix: $raw  |  lib/markup/data/grammar.dart
+    1  --  {{  |  lib/markup/data/grammar.dart
+    1  --  }}  |  lib/markup/data/grammar.dart
+    3  --  created  |  lib/pool/widget/info.dart
+    3  --  post_count  |  lib/pool/data/json.dart
+    3  --  updated  |  lib/pool/widget/info.dart
+    2  --  is_active  |  lib/pool/data/json.dart
+    2  --  posts  |  lib/pool/widget/info.dart
+    1  --  ${value.name}   |  lib/pool/widget/input.dart
+    1  --  /pools/.*  |  lib/pool/widget/input.dart
+    5  --  ,   |  lib/post/widget/detail/widget/relation.dart
+    2  --  ${artists.join(', ')} -   |  lib/post/data/download.dart
+    2  --  Cannot pass both initialPostId and pageController  |  lib/post/widget/detail/gallery.dart
+    2  --  comment_count  |  lib/post/data/json.dart
+    2  --  fav  |  lib/post/data/query.dart
+    2  --  favcount  |  lib/post/data/params.dart
+    2  --  general  |  lib/post/data/editing.dart
+    2  --  new  |  lib/post/data/params.dart
+    2  --  rank  |  lib/post/data/params.dart
+    2  --  rating  |  lib/post/data/json.dart
+    2  --  sample  |  lib/post/data/json.dart
+    1  --   #.*$  |  lib/post/data/actions.dart
+    1  --   (${post.commentCount})  |  lib/post/widget/detail/widget/comments.dart
+    1  --  #${widget.postId} description  |  lib/post/widget/edit/widget/description.dart
+    1  --  ${category[0].toUpperCase()}${category.substring(1)}  |  lib/post/widget/detail/widget/tags.dart
+    1  --  ${w}x$h  |  lib/post/data/json.dart
+    1  --  TagPreview  |  lib/post/widget/edit/widget/tags.dart
+    1  --  ^[~-]+  |  lib/post/data/actions.dart
+    1  --  alternates  |  lib/post/data/json.dart
+    1  --  empty  |  lib/post/widget/edit/widget/tags.dart
+    1  --  fav_count  |  lib/post/data/json.dart
+    1  --  flags  |  lib/post/data/json.dart
+    1  --  invalid  |  lib/post/widget/edit/widget/tags.dart
+    1  --  is_favorited  |  lib/post/data/json.dart
+    1  --  mp4  |  lib/post/data/actions.dart
+    1  --  original  |  lib/post/data/json.dart
+    1  --  post[description]  |  lib/post/data/editing.dart
+    1  --  post[edit_reason]  |  lib/post/data/editing.dart
+    1  --  post[parent_id]  |  lib/post/data/editing.dart
+    1  --  post[rating]  |  lib/post/data/editing.dart
+    1  --  post[source_diff]  |  lib/post/data/editing.dart
+    1  --  post[tag_string_diff]  |  lib/post/data/editing.dart
+    1  --  preview  |  lib/post/data/json.dart
+    1  --  random  |  lib/post/data/params.dart
+    1  --  relationships  |  lib/post/data/json.dart
+    1  --  samples  |  lib/post/data/json.dart
+    1  --  underused  |  lib/post/widget/edit/widget/tags.dart
+    1  --  uploader_id  |  lib/post/data/json.dart
+    1  --  uploader_name  |  lib/post/data/json.dart
+    1  --  webm  |  lib/post/data/actions.dart
+    1  --  Either add an id property to the item or provide a custom getId function.  |  lib/query/data/cache.dart
+    1  --  Item does not have an id property.   |  lib/query/data/cache.dart
+    2  --  updater_id  |  lib/reply/data/json.dart
+    2  --  updater_name  |  lib/reply/data/json.dart
+    1  --  topic_id  |  lib/reply/data/json.dart
+    2  --  db  |  lib/settings/widget/database.dart
+    1  --  ${info.version}+${info.buildNumber}  |  lib/settings/data/client.dart
+    1  --  ${release.name} (${release.version})  |  lib/settings/widget/about.dart
+    1  --  AppInfo has not been initialized  |  lib/settings/data/info.dart
+    1  --  DbManagement  |  lib/settings/widget/database.dart
+    1  --  SELECT 1  |  lib/settings/widget/database.dart
+    1  --  USD  |  lib/settings/widget/donations.dart
+    1  --  apk  |  lib/settings/data/client.dart
+    1  --  assets  |  lib/settings/data/client.dart
+    1  --  ipa  |  lib/settings/data/client.dart
+    1  --  published_at  |  lib/settings/data/client.dart
+    1  --  tag_name  |  lib/settings/data/client.dart
+    2  --  /storage/emulated/  |  lib/shared/data/download.dart
+    1  --   • ${created.relativeTime(context)}  |  lib/shared/widget/date.dart
+    1  --  $key[$k]  |  lib/shared/data/map.dart
+    1  --  .bsky.network  |  lib/shared/data/hosts.dart
+    1  --  .deviantart.com  |  lib/shared/data/hosts.dart
+    1  --  .deviantart.net  |  lib/shared/data/hosts.dart
+    1  --  .fbcdn.net  |  lib/shared/data/hosts.dart
+    1  --  .twimg.com  |  lib/shared/data/hosts.dart
+    1  --  /$  |  lib/shared/data/text.dart
+    1  --  /data/  |  lib/shared/data/avatar.dart
+    1  --  Evicting {spare}, {loaded} of {max} videos loaded  |  lib/shared/widget/video.dart
+    1  --  Loaded {video}  |  lib/shared/widget/video.dart
+    1  --  Loading {loaded} videos, all others in use  |  lib/shared/widget/video.dart
+    1  --  StreamFuture can only be created from a broadcast stream.  |  lib/shared/data/future.dart
+    1  --  Type $T is not supported by QueryMap.get()  |  lib/shared/data/map.dart
+    1  --  Unloaded {video}  |  lib/shared/widget/video.dart
+    1  --  ^///?  |  lib/shared/data/text.dart
+    1  --  ^www.  |  lib/shared/data/text.dart
+    1  --  _cf_chl_opt  |  lib/shared/data/dio.dart
+    1  --  application/octet-stream  |  lib/shared/data/download.dart
+    1  --  aryion.com  |  lib/shared/data/hosts.dart
+    1  --  baraag.net  |  lib/shared/data/hosts.dart
+    1  --  bsky.app  |  lib/shared/data/hosts.dart
+    1  --  bsky.social  |  lib/shared/data/hosts.dart
+    1  --  cdn.discordapp.com  |  lib/shared/data/hosts.dart
+    1  --  cf-chl  |  lib/shared/data/dio.dart
+    1  --  challenge-platform  |  lib/shared/data/dio.dart
+    1  --  cloudflare  |  lib/shared/data/dio.dart
+    1  --  dart:ui  |  lib/shared/widget/hero.dart
+    1  --  discord.com  |  lib/shared/data/hosts.dart
+    1  --  dl.dropboxusercontent.com  |  lib/shared/data/hosts.dart
+    1  --  end  |  lib/shared/widget/range.dart
+    1  --  exact  |  lib/shared/widget/range.dart
+    1  --  furaffinity.net  |  lib/shared/data/hosts.dart
+    1  --  i.pximg.net  |  lib/shared/data/hosts.dart
+    1  --  i.redd.it  |  lib/shared/data/hosts.dart
+    1  --  ident  |  lib/shared/data/dio.dart
+    1  --  inkbunny.net  |  lib/shared/data/hosts.dart
+    1  --  mastodon.art  |  lib/shared/data/hosts.dart
+    1  --  media.tumblr.com  |  lib/shared/data/hosts.dart
+    1  --  nl.ib.metapix.net  |  lib/shared/data/hosts.dart
+    1  --  operator  |  lib/shared/widget/range.dart
+    1  --  patreon.com  |  lib/shared/data/hosts.dart
+    1  --  pixiv.net  |  lib/shared/data/hosts.dart
+    1  --  pp.userapi.com  |  lib/shared/data/hosts.dart
+    1  --  reddit.com  |  lib/shared/data/hosts.dart
+    1  --  single  |  lib/shared/widget/range.dart
+    1  --  start  |  lib/shared/widget/range.dart
+    1  --  tumblr.com  |  lib/shared/data/hosts.dart
+    1  --  twitter.com  |  lib/shared/data/hosts.dart
+    1  --  upload.wikimedia.org  |  lib/shared/data/hosts.dart
+    1  --  vk.me  |  lib/shared/data/hosts.dart
+    1  --  x.com  |  lib/shared/data/hosts.dart
+    1  --  ${tags.join(' ')}   |  lib/tag/widget/input.dart
+    1  --  :$value  |  lib/tag/data/map.dart
+    1  --  avoid_posting  |  lib/tag/data/actions.dart
+    1  --  conditional_dnp  |  lib/tag/data/actions.dart
+    1  --  e621:  |  lib/tag/data/actions.dart
+    1  --  epilepsy_warning  |  lib/tag/data/actions.dart
+    1  --  help:  |  lib/tag/data/actions.dart
+    1  --  howto:  |  lib/tag/data/actions.dart
+    1  --  sound_warning  |  lib/tag/data/actions.dart
+    1  --  Download stream ended without file  |  lib/task/data/controller.dart
+    1  --  Download task missing file metadata (post #${task.postId})  |  lib/task/data/controller.dart
+    1  --  Task sweep failed  |  lib/task/data/controller.dart
+    1  --  TaskIdentity  |  lib/task/data/database.dart
+    1  --  TasksController  |  lib/task/data/controller.dart
+    1  --  Upvote after favorite failed for post {post}  |  lib/task/data/controller.dart
+    1  --  /tickets  |  lib/ticket/data/client.dart
+    2  --  is_locked  |  lib/topic/data/json.dart
+    1  --  category_id  |  lib/topic/data/json.dart
+    1  --  is_sticky  |  lib/topic/data/json.dart
+    1  --  replies  |  lib/topic/widget/prompt.dart
+    1  --  response_count  |  lib/topic/data/json.dart
+    1  --  sticky  |  lib/topic/data/params.dart
+    1  --  IdentitySettingsClient was not activated before accessing   |  lib/traits/data/client.dart
+    1  --  TraitsClient failed to activate because no traits   |  lib/traits/data/client.dart
+    1  --  the traits property  |  lib/traits/data/client.dart
+    1  --  were found and no onCreate callback was provided  |  lib/traits/data/client.dart
+    1  --  about  |  lib/user/widget/user.dart
+    1  --  comission  |  lib/user/widget/user.dart
+    1  --  comments  |  lib/user/widget/user.dart
+    1  --  edits  |  lib/user/widget/user.dart
+    1  --  favorite_count  |  lib/user/data/json.dart
+    1  --  favorites  |  lib/user/widget/user.dart
+    1  --  forum_post_count  |  lib/user/data/json.dart
+    1  --  info  |  lib/user/widget/user.dart
+    1  --  joined  |  lib/user/widget/user.dart
+    1  --  level_string  |  lib/user/data/json.dart
+    1  --  post_update_count  |  lib/user/data/json.dart
+    1  --  post_upload_count  |  lib/user/data/json.dart
+    1  --  user:${user.id}  |  lib/user/widget/user.dart

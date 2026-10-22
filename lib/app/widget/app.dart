@@ -14,6 +14,21 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_sub/flutter_sub.dart';
 import 'package:relative_time/relative_time.dart';
 
+/// Simplified Chinese, preferred whenever every registered delegate can serve
+/// it. `RelativeTimeLocalizations` gets its translations from CLDR, so this is
+/// verified at runtime instead of assumed: if a dependency ever drops zh, the
+/// app keeps its previous English behavior instead of crashing.
+const Locale _zhCN = Locale('zh', 'CN');
+
+final bool _supportsChinese =
+    RelativeTimeLocalizations.delegate.isSupported(_zhCN);
+
+final Locale? _chineseLocale = _supportsChinese ? _zhCN : null;
+
+final List<Locale> _supportedLocales = _supportsChinese
+    ? const [Locale('zh', 'CN'), Locale('en', 'US')]
+    : const [Locale('en', 'US')];
+
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -47,6 +62,8 @@ class App extends StatelessWidget {
                   builder: (context, navigatorKey) => MaterialApp(
                     title: AppInfo.instance.appName,
                     theme: value.data,
+                    locale: _chineseLocale,
+                    supportedLocales: _supportedLocales,
                     scrollBehavior: AndroidStretchScrollBehaviour(),
                     localizationsDelegates: const [
                       GlobalWidgetsLocalizations.delegate,
@@ -79,6 +96,7 @@ class App extends StatelessWidget {
                                     child: AccountConnector(
                                       navigatorKey: navigatorKey,
                                       child: FollowConnector(
+                                        navigatorKey: navigatorKey,
                                         child: AppLinkHandler(
                                           navigatorKey: navigatorKey,
                                           child: NotificationHandler(

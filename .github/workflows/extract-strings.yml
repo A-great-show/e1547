@@ -1,0 +1,36 @@
+name: Extract UI Strings
+
+# 把尚未翻译的字符串清单写回仓库（tool/l10n/extracted.txt），
+# 这样汉化可以按批次推进，不需要本地 clone 项目。
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - zh-cn
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    name: Dump untranslated strings
+    runs-on: ubuntu-latest
+    steps:
+      - name: setup actions
+        uses: actions/checkout@v7
+
+      - name: extract strings
+        run: python3 tool/l10n/extract_strings.py > tool/l10n/extracted.txt
+
+      - name: commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tool/l10n/extracted.txt
+          if git diff --cached --quiet; then
+            echo "清单无变化"
+          else
+            git commit -m "chore(l10n): 更新待翻译字符串清单"
+            git push
+          fi

@@ -16,17 +16,18 @@ import 'package:relative_time/relative_time.dart';
 
 /// Simplified Chinese, preferred whenever every registered delegate can serve
 /// it. `RelativeTimeLocalizations` gets its translations from CLDR, so this is
-/// checked at runtime instead of assumed: if a dependency ever drops zh, the
-/// app simply keeps following the platform locale.
+/// verified at runtime instead of assumed: if a dependency ever drops zh, the
+/// app keeps its previous English behavior instead of crashing.
 const Locale _zhCN = Locale('zh', 'CN');
 
-final Locale? _chineseLocale =
-    RelativeTimeLocalizations.delegate.isSupported(_zhCN) ? _zhCN : null;
+final bool _supportsChinese =
+    RelativeTimeLocalizations.delegate.isSupported(_zhCN);
 
-final List<Locale> _supportedLocales = [
-  if (_chineseLocale != null) _chineseLocale,
-  const Locale('en', 'US'),
-];
+final Locale? _chineseLocale = _supportsChinese ? _zhCN : null;
+
+final List<Locale> _supportedLocales = _supportsChinese
+    ? const [Locale('zh', 'CN'), Locale('en', 'US')]
+    : const [Locale('en', 'US')];
 
 class App extends StatelessWidget {
   const App({super.key});

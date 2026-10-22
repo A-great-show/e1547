@@ -2,15 +2,18 @@ name: Build Chinese APK
 
 # 构建简体中文版 e1547 APK（非官方修改版，GPL-3.0）。
 #
-# 流程：checkout -> 安装 Flutter（版本取自 pubspec.yaml）-> flutter pub get
+# 流程：checkout -> 安装 Flutter -> 生成/复用本 fork 的签名密钥 -> flutter pub get
 #       -> tool/l10n/apply_zh.py 打汉化补丁 -> 打包「对应源码」
 #       -> flutter build apk -> 发布 APK + 源码包 + LICENSE。
 #
+# 签名：release 变体必须能通过 validateSigningRelease。
+# 上游在没有 android/keys/key.properties 时会回退到 debug 签名，而 CI 上不存在
+# ~/.config/.android/debug.keystore，因此这里自举一套 fork 专用密钥：
+# 第一次运行时生成 android/app/fork-release.jks 并提交回仓库，之后所有构建复用
+# 同一个密钥 —— 这样 APK 签名跨构建稳定，用户可以直接覆盖安装升级。
+#
 # GPL-3.0 §6 要求分发目标码时同时提供「对应源码」，因此 Release 里会一并上传
 # 打完补丁的源码压缩包（e1547-zh-cn-source.tar.gz）与许可证全文（LICENSE）。
-#
-# 构建失败时会把 build.log 末尾提交到 .ci/last-build-error.log，便于排查
-# （fork 的 Issues 默认关闭，且 job 原始日志需要鉴权，无法直接读取）。
 
 on:
   workflow_dispatch:
@@ -29,6 +32,12 @@ permissions:
 concurrency:
   group: zh-apk-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  # 本 fork 的公开签名口令。密钥文件与口令都随仓库公开：任何人不需授权即可
+  # 复现同样的签名，这是无 secrets 环境下保持签名稳定的唯一办法。
+  KEYSTORE_PASSWORD: e1547zhcn
+  KEYSTORE_ALIAS: e1547zhcn
 
 jobs:
   android:
@@ -57,16 +66,54 @@ jobs:
           channel: stable
           cache: true
 
-      # 缓存 ~/.gradle，避免每次重新下载 NDK/SDK/依赖（首次约 8 分钟，缓存后明显更快）
+      # 缓存 ~/.gradle，避免每次重新下载 NDK/SDK/依赖
       - name: setup gradle cache
         uses: gradle/actions/setup-gradle@v4
 
       - name: environment info
         run: |
           java -version
-          echo "ANDROID_HOME=$ANDROID_HOME"
           df -h /
           free -h
+
+      # 生成（或复用）签名密钥。首次运行会生成并提交回仓库，之后每次构建都用同一把。
+      - name: ensure signing key
+        run: |
+          set -e
+          KEYSTORE_PATH="android/app/fork-release.jks"
+          mkdir -p android/keys
+
+          if [ ! -f "$KEYSTORE_PATH" ]; then
+            keytool -genkeypair \
+              -keystore "$KEYSTORE_PATH" \
+              -storetype PKCS12 \
+              -alias "$KEYSTORE_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEYSTORE_PASSWORD" \
+              -keypass "$KEYSTORE_PASSWORD" \
+              -dname "CN=e1547 zh-CN unofficial fork, O=unofficial, C=CN"
+          fi
+
+          # storeFile 相对 android/app/ 解析（build.gradle.kts 里的 file(...)）
+          cat > android/keys/key.properties <<EOF
+          storeFile=fork-release.jks
+          storePassword=$KEYSTORE_PASSWORD
+          keyAlias=$KEYSTORE_ALIAS
+          keyPassword=$KEYSTORE_PASSWORD
+          EOF
+
+          keytool -list -keystore "$KEYSTORE_PATH" -storepass "$KEYSTORE_PASSWORD" | tail -n 3
+
+          # 把密钥提交回去，保证后续构建签名一致（这些文件被 .gitignore 忽略，需 -f）
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f "$KEYSTORE_PATH" android/keys/key.properties
+          if git diff --cached --quiet; then
+            echo "签名密钥已存在，无需提交"
+          else
+            git commit -m "ci: 生成本 fork 的签名密钥（公开口令，供后续构建复用） [skip ci]"
+            git push origin HEAD:zh-cn || echo "::warning::密钥提交失败，本次构建签名可能与上次不同"
+          fi
 
       - name: get flutter dependencies
         run: flutter pub get
@@ -76,10 +123,10 @@ jobs:
 
       - name: verify patch
         run: |
-          if git diff --quiet; then
+          if git diff --quiet -- lib; then
             echo "::warning::汉化补丁没有修改任何文件，请检查 tool/l10n/zh_cn.json"
           else
-            git diff --stat
+            git diff --stat -- lib
           fi
 
       - name: package corresponding source
@@ -140,8 +187,9 @@ jobs:
           * `e1547-zh-cn-source.tar.gz` — **对应源码**（已应用汉化补丁，GPL-3.0 §6）
           * `LICENSE` — GNU GPL v3.0 全文
 
-          **安装提示**：本包为 debug 签名，与官方版本签名不同。若已安装官方版，请先卸载，
-          否则会提示「应用未安装」。请勿用官方公开的证书指纹校验本包。
+          **安装提示**：本包使用本 fork 自己的签名密钥（`android/app/fork-release.jks`，口令公开），
+          与 Google Play / 官方 Release 的签名不同。若已安装官方版，请先卸载再安装。
+          同一来源的后续版本可以直接覆盖升级。
 
           **构建可复现**：`flutter pub get && python3 tool/l10n/apply_zh.py && flutter build apk --release`
 
@@ -155,7 +203,7 @@ jobs:
           gh release edit "$TAG" --notes "$NOTES"
           gh release upload "$TAG" out/* --clobber
 
-      # 失败时把日志提交回仓库（.ci/last-build-error.log），这样可以直接排查
+      # 失败时把日志提交回仓库（.ci/last-build-error.log），便于直接排查
       - name: record failure log
         if: failure()
         run: |
@@ -164,8 +212,6 @@ jobs:
             echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
             echo "sha: ${GITHUB_SHA}"
             echo
-            echo "=== java ==="
-            java -version 2>&1 || true
             echo "=== disk ==="
             df -h / || true
             echo "=== memory ==="

@@ -2,9 +2,9 @@
 #
 # 这是由 tool/l10n/extract_strings.py 自动生成的文件，请勿手工编辑。
 # 格式：出现次数 | 类型 | 字面量 | 示例文件
-# 补充翻译时，把字面量原样作为 key 写进 tool/l10n/zh_cn.json 的 strings 即可。
+# 补充翻译时，把字面量原样作为 key 写进 tool/l10n/zh_cn*.json 的 strings 即可。
 #
-# 未翻译条目：679（疑似界面文案 283，其余可能是技术性字符串）
+# 未翻译条目：643（疑似界面文案 274，其余可能是技术性字符串）
 
     6  UI  name  |  lib/account/data/client.dart
     1  UI  ${entry.key}=${entry.value}  |  lib/account/widget/cookie.dart
@@ -53,8 +53,6 @@
     1  UI  trace  |  lib/flag/data/flag.dart
     1  UI  uploading_guidelines  |  lib/flag/data/flag.dart
     1  UI  young_human  |  lib/flag/data/flag.dart
-    1  UI  Synced {done} of {total} follows  |  lib/follow/data/sync.dart
-    1  UI  Synced {total} follows for {user} on {host}  |  lib/follow/data/sync.dart
     1  UI  search[has_unseen]  |  lib/follow/data/client.dart
     1  UI  search[tags]  |  lib/follow/data/client.dart
     1  UI  search[title]  |  lib/follow/data/client.dart
@@ -66,19 +64,14 @@
     3  UI  JetBrains Mono  |  lib/logs/widget/card.dart
     1  UI  $name    |  lib/logs/widget/card.dart
     1  UI  ${DateFormatting.dateTime(date)} ${type != null ? ' ($type)' : ''}  |  lib/logs/data/file.dart
-    1  UI  ${data.selections.length} log files  |  lib/logs/widget/appbar.dart
-    1  UI  ${data.selections.length} logs  |  lib/logs/widget/appbar.dart
     1  UI  ${e.key}=${e.value}  |  lib/logs/data/interceptor.dart
     1  UI  ${encodeLogValue(attributes[name])}  |  lib/logs/data/entry.dart
     1  UI  ${encodeLogValue(value)}  |  lib/logs/widget/card.dart
     1  UI  ${errors.length}  |  lib/logs/widget/bubble.dart
     1  UI  ${level.name} | $time | $source: $event  |  lib/logs/data/entry.dart
     1  UI  ${reason.substring(0, reasonLimit)}…  |  lib/logs/data/interceptor.dart
-    1  UI  ${recording.name.pascalCase} and above  |  lib/logs/widget/drawer.dart
     1  UI  ${uri.path}?$rendered  |  lib/logs/data/interceptor.dart
-    1  UI  +${frames.length - limit} more  |  lib/logs/data/stack.dart
     1  UI  :   |  lib/logs/data/format.dart
-    1  UI  Logs - ${data.selections.first.date}  |  lib/logs/widget/appbar.dart
     1  UI  Logs${date != null ? ' - ${DateFormatting.date(date)}' : ''}  |  lib/logs/widget/logs.dart
     1  UI  {method} {path} failed with {status}: {reason}  |  lib/logs/data/interceptor.dart
     8  UI  pool  |  lib/markup/data/grammar.dart
@@ -202,7 +195,6 @@
     1  UI  -$t  |  lib/post/data/editing.dart
     1  UI  -$tag  |  lib/post/data/params.dart
     1  UI  /posts/$id  |  lib/post/data/actions.dart
-    1  UI  Error loading tag preview: $e  |  lib/post/widget/edit/widget/tags.dart
     1  UI  com.android.externalstorage.documents  |  lib/post/data/download.dart
     1  UI  date  |  lib/post/data/params.dart
     1  UI  deletion  |  lib/post/widget/detail/widget/deletion.dart
@@ -241,7 +233,6 @@
     1  UI  $value..$endValue  |  lib/shared/widget/range.dart
     1  UI  ${reference.substring(0, index)}/data/avatars/$userId.jpg?t=$avatarId  |  lib/shared/data/avatar.dart
     1  UI  ${split('').take(limit).join()}...  |  lib/shared/data/text.dart
-    1  UI  ${updated != null && updated!.isAfter(created) ? ' (edited)' : ''}  |  lib/shared/widget/date.dart
     1  UI  .*${RegExp.escape(this)}.*  |  lib/shared/data/text.dart
     1  UI  <$value  |  lib/shared/widget/range.dart
     1  UI  <=$value  |  lib/shared/widget/range.dart
@@ -335,8 +326,6 @@
     1  --  Running {task}  |  lib/app/data/background.dart
     1  --  SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'tasks_table'  |  lib/app/data/storage.dart
     1  --  Task $task is unknown!  |  lib/app/data/background.dart
-    1  --  Task {task} failed  |  lib/app/data/background.dart
-    1  --  Uncaught framework error  |  lib/app/data/initialize.dart
     1  --  Unknown notification type {type}  |  lib/app/widget/notifications.dart
     1  --  Unregistered {task}  |  lib/app/data/task.dart
     1  --  collections  |  lib/app/data/navigation.dart
@@ -375,15 +364,10 @@
     1  --  Updated objects should have an existing id.  |  lib/files/data/storage.dart
     1  --  max-age=  |  lib/files/data/service.dart
     2  --  reason  |  lib/flag/data/json.dart
-    1  --  Posts featuring human and human-like characters depicted in a sexual or explicit nude way, are not acceptable on this site.  |  lib/flag/data/flag.dart
-    1  --  The artist of this post is on the "avoid posting list":/static/avoid_posting  |  lib/flag/data/flag.dart
-    1  --  We do not host paysite or commercial content of any kind. This includes Patreon leaks, reposts from piracy websites, and so on.  |  lib/flag/data/flag.dart
-    1  --  Young [[human]]-[[humanoid|like]] character in an explicit situation  |  lib/flag/data/flag.dart
     1  --  is_deletion  |  lib/flag/data/json.dart
     1  --  is_resolved  |  lib/flag/data/json.dart
    17  --  dart:math  |  lib/follow/data/database.dart
     4  --  Cannot specify offset without limit!  |  lib/follow/data/database.dart
-    2  --  Sync failed for {user} on {host}  |  lib/follow/data/sync.dart
     1  --  ${NumberFormat('0.#%').format(progressSnapshot.data ?? 0)}  |  lib/follow/widget/drawer.dart
     1  --  Failed to load thumbnail for {tags}  |  lib/follow/data/notifications.dart
     1  --  FollowIdentity  |  lib/follow/data/database.dart
@@ -393,19 +377,14 @@
     1  --  Force refreshing all follows  |  lib/follow/data/sync.dart
     1  --  No pool for {tags}, set to bookmarked  |  lib/follow/data/sync.dart
     1  --  Notified: {title} {body}  |  lib/follow/data/notifications.dart
-    1  --  Page {page} failed  |  lib/follow/data/query.dart
-    1  --  Sync cancelled for {user} on {host}  |  lib/follow/data/sync.dart
     1  --  Sync found {count} leftover posts  |  lib/follow/data/sync.dart
     1  --  Sync started for {user} on {host}  |  lib/follow/data/sync.dart
     1  --  Sync tried refreshing same follows twice!  |  lib/follow/data/sync.dart
     1  --  net.clynamic.e1547.follows  |  lib/follow/data/notifications.dart
     1  --  syncing follows...   |  lib/follow/widget/drawer.dart
-    1  --  {tags} has {unseen} new posts  |  lib/follow/data/notifications.dart
     1  --  Enabling history limit means all history entries beyond ${NumberFormat.compact().format(trimAmount)}   |  lib/history/widget/drawer.dart
     1  --  HistoryIdentity  |  lib/history/data/database.dart
     1  --  Limited to newer than ${trimAge.inDays ~/ 30} months or   |  lib/history/widget/drawer.dart
-    1  --  and all entries older than ${trimAge.inDays ~/ 30} months are automatically deleted.  |  lib/history/widget/drawer.dart
-    1  --  less than ${NumberFormat.compact().format(trimAmount)} entries.  |  lib/history/widget/drawer.dart
     1  --  yyyy-MM-dd  |  lib/history/data/params.dart
     1  --  ${uri.path}$path  |  lib/identity/data/actions.dart
     1  --  /$path  |  lib/identity/data/actions.dart
@@ -536,10 +515,7 @@
     1  --   (${post.commentCount})  |  lib/post/widget/detail/widget/comments.dart
     1  --  #${widget.postId} description  |  lib/post/widget/edit/widget/description.dart
     1  --  ${category[0].toUpperCase()}${category.substring(1)}  |  lib/post/widget/detail/widget/tags.dart
-    1  --  ${videoSeekStep.inSeconds * combo} seconds  |  lib/post/widget/shared/video.dart
     1  --  ${w}x$h  |  lib/post/data/json.dart
-    1  --  PostFullscreen received an unsupported image!  |  lib/post/widget/fullscreen/page.dart
-    1  --  Tag preview failed  |  lib/post/widget/edit/widget/tags.dart
     1  --  TagPreview  |  lib/post/widget/edit/widget/tags.dart
     1  --  ^[~-]+  |  lib/post/data/actions.dart
     1  --  alternates  |  lib/post/data/json.dart
@@ -572,7 +548,6 @@
     2  --  db  |  lib/settings/widget/database.dart
     1  --  ${info.version}+${info.buildNumber}  |  lib/settings/data/client.dart
     1  --  ${release.name} (${release.version})  |  lib/settings/widget/about.dart
-    1  --  A newer version is available: ${data.first.version}  |  lib/settings/widget/about.dart
     1  --  AppInfo has not been initialized  |  lib/settings/data/info.dart
     1  --  DbManagement  |  lib/settings/widget/database.dart
     1  --  SELECT 1  |  lib/settings/widget/database.dart
@@ -592,17 +567,12 @@
     1  --  .twimg.com  |  lib/shared/data/hosts.dart
     1  --  /$  |  lib/shared/data/text.dart
     1  --  /data/  |  lib/shared/data/avatar.dart
-    1  --  Cannot select an item which is not part of items!  |  lib/shared/widget/selection.dart
-    1  --  Cannot specify both comparison and end value.  |  lib/shared/widget/range.dart
-    1  --  Checkbox value cannot be null!  |  lib/shared/widget/checkbox.dart
     1  --  Evicting {spare}, {loaded} of {max} videos loaded  |  lib/shared/widget/video.dart
-    1  --  Generic file downloading is not supported on iOS  |  lib/shared/data/download.dart
     1  --  Loaded {video}  |  lib/shared/widget/video.dart
     1  --  Loading {loaded} videos, all others in use  |  lib/shared/widget/video.dart
     1  --  StreamFuture can only be created from a broadcast stream.  |  lib/shared/data/future.dart
     1  --  Type $T is not supported by QueryMap.get()  |  lib/shared/data/map.dart
     1  --  Unloaded {video}  |  lib/shared/widget/video.dart
-    1  --  Videos muted: {muted}  |  lib/shared/widget/video.dart
     1  --  ^///?  |  lib/shared/data/text.dart
     1  --  ^www.  |  lib/shared/data/text.dart
     1  --  _cf_chl_opt  |  lib/shared/data/dio.dart
@@ -652,16 +622,10 @@
     1  --  Download stream ended without file  |  lib/task/data/controller.dart
     1  --  Download task missing file metadata (post #${task.postId})  |  lib/task/data/controller.dart
     1  --  Task sweep failed  |  lib/task/data/controller.dart
-    1  --  Task {task} ({action}) failed  |  lib/task/data/controller.dart
     1  --  TaskIdentity  |  lib/task/data/database.dart
     1  --  TasksController  |  lib/task/data/controller.dart
     1  --  Upvote after favorite failed for post {post}  |  lib/task/data/controller.dart
     1  --  /tickets  |  lib/ticket/data/client.dart
-    1  --  One or more of the listed sources link to malicious pages or pay content.  |  lib/ticket/data/post.dart
-    1  --  The description contains malicious content, or has been edited to contain abusive material.  |  lib/ticket/data/post.dart
-    1  --  The file contains either malicious code or contains a hidden file archive. This is not for imagery depicted in the image itself.  |  lib/ticket/data/post.dart
-    1  --  The notes on this post are wrong, harassive, or otherwise abusive.  |  lib/ticket/data/post.dart
-    1  --  The rating of the submission has been set to something incorrect.  |  lib/ticket/data/post.dart
     2  --  is_locked  |  lib/topic/data/json.dart
     1  --  category_id  |  lib/topic/data/json.dart
     1  --  is_sticky  |  lib/topic/data/json.dart

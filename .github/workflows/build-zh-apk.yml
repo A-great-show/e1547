@@ -11,7 +11,8 @@ name: Build Chinese APK
 # ~/.config/.android/debug.keystore，因此这里自举一套 fork 专用密钥：
 #   第一次运行时用 openssl 生成随机口令 -> 生成 android/app/fork-release.jks
 #   -> 与 key.properties 一起提交回仓库 -> 之后所有构建复用同一把密钥。
-# 密钥与随机口令只保存在仓库里（仓库为私有），跨构建签名稳定，可直接覆盖升级。
+# 密钥与口令随仓库公开（本仓库是公开的），因此指纹只能证明「由本 fork 构建」，
+# 不能证明来源真实可信；若需要真正的防伪造，请改用 Actions Secrets 保存密钥。
 #
 # GPL-3.0 §6 要求分发目标码时同时提供「对应源码」，因此 Release 里会一并上传
 # 打完补丁的源码压缩包（e1547-zh-cn-source.tar.gz）与许可证全文（LICENSE）。
@@ -63,7 +64,7 @@ jobs:
 
       # 缓存 ~/.gradle，避免每次重新下载 NDK/SDK/依赖
       - name: setup gradle cache
-        uses: actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v4
 
       - name: environment info
         run: |
@@ -71,7 +72,7 @@ jobs:
           df -h /
           free -h
 
-      # 生成（或复用）签名密钥；口令用 openssl 随机生成，只写在仓库的 key.properties 里
+      # 生成（或复用）签名密钥；口令用 openssl 随机生成，写在 key.properties 里
       - name: ensure signing key
         run: |
           set -e
@@ -116,7 +117,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "签名密钥已存在，无需提交"
           else
-            git commit -m "ci: 生成本 fork 的随机签名密钥（口令仅存于仓库） [skip ci]"
+            git commit -m "ci: 生成本 fork 的随机签名密钥 [skip ci]"
             git push origin HEAD:zh-cn || echo "::warning::密钥提交失败，本次构建签名可能与上次不同"
           fi
 
@@ -202,7 +203,7 @@ jobs:
           \`\`\`
 
           本包使用本 fork 自己的签名密钥，与 Google Play / 官方 Release 不同：若已安装官方版，
-          请先卸载再安装；同一来源的后续版本可直接覆盖升级。可用 AppVerifier 等工具核对上面的指纹。
+          请先卸载再安装；同一来源的后续版本可直接覆盖升级。
 
           **构建可复现**：\`flutter pub get && python3 tool/l10n/apply_zh.py && flutter build apk --release\`
 

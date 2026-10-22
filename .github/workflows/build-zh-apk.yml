@@ -18,8 +18,8 @@ on:
     branches:
       - zh-cn
     paths-ignore:
+      # 只改文档不重新打包；词条与代码的改动都要重新打包
       - '**.md'
-      - 'tool/l10n/zh_cn*.json'
       - 'tool/l10n/extracted.txt'
 
 permissions:

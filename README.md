@@ -6,7 +6,7 @@
     <td width="80%">
       <h1>e1547 · 简体中文版</h1>
       <h4>A sophisticated e621 browser — 非官方汉化构建</h4>
-      <a href="blob/zh-cn/LICENSE"><img src="https://img.shields.io/github/license/clynamic/e1547"></a>
+      <a href="LICENSE"><img src="https://img.shields.io/github/license/clynamic/e1547"></a>
       <a href="https://github.com/A-great-show/e1547/actions/workflows/build-zh-apk.yml"><img src="https://img.shields.io/badge/auto%20build-Actions-blue"></a>
     </td>
   </tr>
@@ -54,12 +54,12 @@
 
 ```
 tool/l10n/
-├── zh_cn.json        # 词典：英文原文 → 中文（键名与源码引号内内容逐字符一致）
-├── zh_cn_2.json      # 后续批次词条，脚本会自动合并所有 zh_cn*.json
-├── apply_zh.py       # 在 flutter build 之前重写 lib/**/*.dart 中的字符串字面量
-├── extract_strings.py# 提取「尚未翻译」的字面量，供下一批补词条
-├── extracted.txt     # 上面工具的输出（由 CI 自动提交）
-└── README.md         # 方案细节与安全策略
+├── zh_cn.json         # 词典：英文原文 → 中文（键名与源码引号内内容逐字符一致）
+├── zh_cn_2.json       # 后续批次词条，脚本会自动合并所有 zh_cn*.json
+├── apply_zh.py        # 在 flutter build 之前重写 lib/**/*.dart 中的字符串字面量
+├── extract_strings.py # 提取「尚未翻译」的字面量，供下一批补词条
+├── extracted.txt      # 上面工具的输出（由 CI 自动提交）
+└── README.md          # 方案细节与安全策略
 ```
 
 - 补丁脚本只替换**单词字面量**，并跳过生成文件、注释、含转义的字面量、Map 的 key，以及涉及路由 / 请求参数 / Header / 存储 key 的行，

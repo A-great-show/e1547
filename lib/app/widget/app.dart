@@ -95,9 +95,6 @@ class App extends StatelessWidget {
                                   child: OnboardingGate(
                                     child: AccountConnector(
                                       navigatorKey: navigatorKey,
-                                      // `FollowConnector` 不接收 navigatorKey（上游
-                                      // 重构后已移除该参数），此前误传会导致
-                                      // “No named parameter with the name 'navigatorKey'”。
                                       child: FollowConnector(
                                         child: AppLinkHandler(
                                           navigatorKey: navigatorKey,

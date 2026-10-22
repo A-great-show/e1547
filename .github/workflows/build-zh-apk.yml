@@ -1,0 +1,92 @@
+name: Build Chinese APK
+
+# 构建简体中文版 e1547 APK。
+#
+# 流程：checkout -> 安装 Flutter（版本取自 pubspec.yaml）-> flutter pub get
+#       -> tool/l10n/apply_zh.py 打汉化补丁 -> flutter build apk -> 发布产物。
+#
+# 不需要任何自签证书：android/app/build.gradle.kts 在找不到 android/keys/key.properties
+# 时会回退到 debug 签名，因此产物可以直接安装。
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - zh-cn
+    paths-ignore:
+      - '**.md'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: zh-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    name: Build APK (zh-CN)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: setup actions
+        uses: actions/checkout@v7
+
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: parse flutter version
+        run: |
+          export FLUTTER_VERSION=$(./.github/workflows/get_flutter_version.sh)
+          echo "FLUTTER_VERSION=$FLUTTER_VERSION" >> $GITHUB_ENV
+
+      - name: setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: get flutter dependencies
+        run: flutter pub get
+
+      - name: apply chinese patch
+        run: python3 tool/l10n/apply_zh.py
+
+      - name: verify patch
+        run: |
+          if git diff --quiet; then
+            echo "::warning::汉化补丁没有修改任何文件，请检查 tool/l10n/zh_cn.json"
+          else
+            git diff --stat
+          fi
+
+      - name: build APK
+        run: flutter build apk --release
+
+      - name: collect artifacts
+        run: |
+          mkdir -p out
+          cp build/app/outputs/apk/release/*.apk out/
+          ls -lh out
+
+      - name: upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: e1547-zh-apk
+          path: out/*.apk
+          retention-days: 30
+
+      - name: publish to releases
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="zh-cn-latest"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" \
+            --title "e1547 简体中文版（自动构建）" \
+            --notes "由 zh-cn 分支自动构建的汉化 APK，包含 arm64 / armv7 / universal 三个版本。汉化词典见 tool/l10n/zh_cn.json。" \
+            --prerelease
+          gh release upload "$TAG" out/*.apk --clobber

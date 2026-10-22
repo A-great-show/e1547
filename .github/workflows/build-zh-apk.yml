@@ -9,7 +9,8 @@ name: Build Chinese APK
 # GPL-3.0 §6 要求分发目标码时同时提供「对应源码」，因此 Release 里会一并上传
 # 打完补丁的源码压缩包（e1547-zh-cn-source.tar.gz）与许可证全文（LICENSE）。
 #
-# 构建失败时会自动开一个 Issue，附上 build.log 末尾与环境信息，方便排查。
+# 构建失败时会把 build.log 末尾提交到 .ci/last-build-error.log，便于排查
+# （fork 的 Issues 默认关闭，且 job 原始日志需要鉴权，无法直接读取）。
 
 on:
   workflow_dispatch:
@@ -20,10 +21,10 @@ on:
       # 只改文档不重新打包；词条与代码的改动都要重新打包
       - '**.md'
       - 'tool/l10n/extracted.txt'
+      - '.ci/**'
 
 permissions:
   contents: write
-  issues: write
 
 concurrency:
   group: zh-apk-${{ github.ref }}
@@ -56,13 +57,16 @@ jobs:
           channel: stable
           cache: true
 
+      # 缓存 ~/.gradle，避免每次重新下载 NDK/SDK/依赖（首次约 8 分钟，缓存后明显更快）
+      - name: setup gradle cache
+        uses: gradle/actions/setup-gradle@v4
+
       - name: environment info
         run: |
           java -version
           echo "ANDROID_HOME=$ANDROID_HOME"
-          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
           df -h /
-          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || true
+          free -h
 
       - name: get flutter dependencies
         run: flutter pub get
@@ -98,8 +102,10 @@ jobs:
           flutter build apk --release 2>&1 | tee build.log
 
       - name: collect artifacts
+        if: success()
         run: |
-          cp build/app/outputs/apk/release/*.apk out/
+          cp build/app/outputs/flutter-apk/*.apk out/ 2>/dev/null || \
+            cp build/app/outputs/apk/release/*.apk out/
           ls -lh out
 
       - name: upload artifacts
@@ -149,37 +155,31 @@ jobs:
           gh release edit "$TAG" --notes "$NOTES"
           gh release upload "$TAG" out/* --clobber
 
-      # 失败时把关键信息落到 Issue 里，便于直接定位（job 原始日志需要鉴权，无法直接读取）
-      - name: report failure
+      # 失败时把日志提交回仓库（.ci/last-build-error.log），这样可以直接排查
+      - name: record failure log
         if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          mkdir -p .ci
           {
-            echo "构建失败： ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo "sha: ${GITHUB_SHA}"
             echo
-            echo "### 环境"
-            echo '```'
+            echo "=== java ==="
             java -version 2>&1 || true
-            flutter --version 2>&1 || true
+            echo "=== disk ==="
             df -h / || true
-            echo '```'
-            echo
-            echo "### flutter doctor"
-            echo '```'
-            flutter doctor -v 2>&1 | tail -n 50 || true
-            echo '```'
+            echo "=== memory ==="
+            free -h || true
             echo
             if [ -f build.log ]; then
-              echo "### build.log 末尾 250 行"
-              echo '```'
-              tail -n 250 build.log | cut -c1-2000
-              echo '```'
+              echo "=== build.log tail (400 lines) ==="
+              tail -n 400 build.log
             else
-              echo "### 没有生成 build.log（失败发生在构建之前）"
+              echo "build.log 未生成：失败发生在 flutter build 之前"
             fi
-          } > failure.md
-          gh issue create \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "汉化构建失败 (run #${GITHUB_RUN_NUMBER})" \
-            --body-file failure.md || true
+          } > .ci/last-build-error.log
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f .ci/last-build-error.log
+          git commit -m "ci: 记录构建失败日志 [skip ci]" || true
+          git push origin HEAD:zh-cn || true

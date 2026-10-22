@@ -9,8 +9,7 @@ name: Build Chinese APK
 # GPL-3.0 §6 要求分发目标码时同时提供「对应源码」，因此 Release 里会一并上传
 # 打完补丁的源码压缩包（e1547-zh-cn-source.tar.gz）与许可证全文（LICENSE）。
 #
-# 不需要任何自签证书：android/app/build.gradle.kts 在找不到 android/keys/key.properties
-# 时会回退到 debug 签名，因此产物可以直接安装。
+# 构建失败时会自动开一个 Issue，附上 build.log 末尾与环境信息，方便排查。
 
 on:
   workflow_dispatch:
@@ -24,6 +23,7 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: zh-apk-${{ github.ref }}
@@ -56,6 +56,14 @@ jobs:
           channel: stable
           cache: true
 
+      - name: environment info
+        run: |
+          java -version
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
+          df -h /
+          ls "${ANDROID_HOME:-/usr/local/lib/android/sdk}" || true
+
       - name: get flutter dependencies
         run: flutter pub get
 
@@ -74,7 +82,6 @@ jobs:
         run: |
           mkdir -p out
           # GPL-3.0 §6：随二进制提供「对应源码」，即打完汉化补丁后的完整源码树
-          # （含 pubspec、android / iOS 工程、补丁脚本与构建工作流）
           tar czf out/e1547-zh-cn-source.tar.gz \
             --exclude='./.git' \
             --exclude='./build' \
@@ -86,7 +93,9 @@ jobs:
           ls -lh out
 
       - name: build APK
-        run: flutter build apk --release
+        run: |
+          set -o pipefail
+          flutter build apk --release 2>&1 | tee build.log
 
       - name: collect artifacts
         run: |
@@ -94,6 +103,7 @@ jobs:
           ls -lh out
 
       - name: upload artifacts
+        if: success()
         uses: actions/upload-artifact@v7
         with:
           name: e1547-zh-apk
@@ -104,11 +114,11 @@ jobs:
           retention-days: 30
 
       - name: publish to releases
+        if: success()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="zh-cn-latest"
-          # 用 heredoc 写说明，再用 sed 去掉 YAML 缩进，避免 markdown 被当成代码块
           NOTES=$(cat <<'EOF' | sed 's/^[[:space:]]*//'
           e1547 简体中文版 —— **非官方修改版**（基于 GPL-3.0 授权的 clynamic/e1547 修改）
 
@@ -138,3 +148,38 @@ jobs:
             --prerelease
           gh release edit "$TAG" --notes "$NOTES"
           gh release upload "$TAG" out/* --clobber
+
+      # 失败时把关键信息落到 Issue 里，便于直接定位（job 原始日志需要鉴权，无法直接读取）
+      - name: report failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          {
+            echo "构建失败： ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+            echo
+            echo "### 环境"
+            echo '```'
+            java -version 2>&1 || true
+            flutter --version 2>&1 || true
+            df -h / || true
+            echo '```'
+            echo
+            echo "### flutter doctor"
+            echo '```'
+            flutter doctor -v 2>&1 | tail -n 50 || true
+            echo '```'
+            echo
+            if [ -f build.log ]; then
+              echo "### build.log 末尾 250 行"
+              echo '```'
+              tail -n 250 build.log | cut -c1-2000
+              echo '```'
+            else
+              echo "### 没有生成 build.log（失败发生在构建之前）"
+            fi
+          } > failure.md
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "汉化构建失败 (run #${GITHUB_RUN_NUMBER})" \
+            --body-file failure.md || true

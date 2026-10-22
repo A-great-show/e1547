@@ -11,13 +11,17 @@ Usage::
     python3 tool/l10n/apply_zh.py            # patch lib/**/*.dart in place
     python3 tool/l10n/apply_zh.py --dry-run  # only print what would change
 
-Only plain, single token string literals are touched:
+Which literals are replaced:
 
 * generated files (``*.g.dart``, ``*.freezed.dart``, ``*.drift.dart``) are skipped
 * comments are skipped
-* string interpolation blocks (``${...}``) are skipped, simple ``$name`` is fine
+* literals containing escape sequences or newlines are skipped
 * literals that are followed by ``:`` (map keys) or that sit on a line dealing
   with routes, payloads, headers or storage keys are skipped
+
+Interpolation is supported: a dictionary key such as ``"${count} tags blocked"``
+is matched verbatim, so the translation has to keep the same ``$var`` / ``${...}``
+placeholders (they may be moved around freely).
 """
 
 from __future__ import annotations
@@ -60,6 +64,31 @@ DENY_TOKENS = (
     "==",
 )
 
+# Hints that a line carries user facing text rather than data.
+UI_MARKERS = (
+    "Text(",
+    "TextSpan(",
+    "title:",
+    "label:",
+    "subtitle:",
+    "hintText:",
+    "labelText:",
+    "helperText:",
+    "errorText:",
+    "tooltip:",
+    "semanticsLabel:",
+    "message:",
+    "content:",
+    "description:",
+    "titleText:",
+    "placeholder:",
+    "name:",
+    "return ",
+    "=> " ,
+    "? '",
+    ": '",
+)
+
 
 def _skip_interpolation(src: str, index: int) -> int:
     """Return the index right after the ``}`` closing a ``${`` block."""
@@ -92,7 +121,7 @@ def _skip_interpolation(src: str, index: int) -> int:
 
 
 def iter_literals(src: str):
-    """Yield ``(content_start, content_end, content, is_simple)`` tuples."""
+    """Yield ``(content_start, content_end, content, is_plain)`` tuples."""
     index = 0
     length = len(src)
     while index < length:
@@ -117,50 +146,58 @@ def iter_literals(src: str):
         )
 
         cursor = index + 1
-        simple = not raw
+        plain = not raw
         while cursor < length:
             inner = src[cursor]
             if inner == "\\" and not raw:
-                simple = False
+                plain = False
                 cursor += 2
                 continue
             if inner == char:
                 break
             if inner == "$" and not raw:
                 if cursor + 1 < length and src[cursor + 1] == "{":
-                    simple = False
                     cursor = _skip_interpolation(src, cursor + 1)
                     continue
             cursor += 1
 
-        yield index + 1, cursor, src[index + 1 : cursor], simple
+        yield index + 1, cursor, src[index + 1 : cursor], plain
         index = cursor + 1
+
+
+def literal_is_translatable(src: str, start: int, end: int, content: str) -> bool:
+    """Apply the shared safety filters used by the patcher and the extractor."""
+    if not content or "\n" in content or "\\" in content:
+        return False
+
+    line_start = src.rfind("\n", 0, start) + 1
+    line_end = src.find("\n", end)
+    if line_end == -1:
+        line_end = len(src)
+    line = src[line_start:line_end]
+
+    if line.lstrip().startswith(("//", "///", "*", "/*")):
+        return False
+    if any(token in line for token in DENY_TOKENS):
+        return False
+    if any(token in content for token in DENY_TOKENS):
+        return False
+
+    # A literal directly followed by `:` is a map key, not user facing text.
+    following = src[end + 1 : end + 40].lstrip()
+    if following.startswith(":") and not following.startswith("::"):
+        return False
+
+    return True
 
 
 def patch_source(src: str, table: dict, hits: dict) -> tuple:
     edits = []
-    for start, end, content, simple in iter_literals(src):
-        if not simple or not content or "\n" in content:
-            continue
+    for start, end, content, _plain in iter_literals(src):
         replacement = table.get(content)
         if replacement is None:
             continue
-
-        line_start = src.rfind("\n", 0, start) + 1
-        line_end = src.find("\n", end)
-        if line_end == -1:
-            line_end = len(src)
-        line = src[line_start:line_end]
-        if line.lstrip().startswith(("//", "///", "*", "/*")):
-            continue
-        if any(token in line for token in DENY_TOKENS):
-            continue
-        if any(token in content for token in DENY_TOKENS):
-            continue
-
-        # A literal directly followed by `:` is a map key, not user facing text.
-        following = src[end + 1 : end + 40].lstrip()
-        if following.startswith(":") and not following.startswith("::"):
+        if not literal_is_translatable(src, start, end, content):
             continue
 
         edits.append((start, end, replacement))

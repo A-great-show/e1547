@@ -12,25 +12,24 @@ Usage::
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from apply_zh import (  # noqa: E402
-    DICTIONARY,
     LIB,
     ROOT,
     SKIP_SUFFIXES,
     UI_MARKERS,
     iter_literals,
     literal_is_translatable,
+    load_dictionary,
 )
 
 
 def main() -> int:
-    table = json.loads(DICTIONARY.read_text(encoding="utf-8"))["strings"]
+    table = load_dictionary()
 
     entries: dict = {}
     for path in sorted(LIB.rglob("*.dart")):
@@ -45,18 +44,22 @@ def main() -> int:
             if not literal_is_translatable(src, start, end, content):
                 continue
             line_end = src.find("\n", end)
-            line = src[src.rfind("\n", 0, start) + 1 : line_end if line_end != -1 else len(src)]
+            line = src[
+                src.rfind("\n", 0, start) + 1 : line_end if line_end != -1 else len(src)
+            ]
             is_ui = any(marker in line for marker in UI_MARKERS)
             if content.isdigit() or len(content) < 2:
                 continue
 
-            key = content
-            if key in entries:
-                entries[key][0] += 1
+            if content in entries:
+                entries[content][0] += 1
             else:
-                entries[key] = [1, module, relative, is_ui]
+                entries[content] = [1, module, relative, is_ui]
 
-    rows = [(count, module, path, is_ui, content) for content, (count, module, path, is_ui) in entries.items()]
+    rows = [
+        (count, module, path, is_ui, content)
+        for content, (count, module, path, is_ui) in entries.items()
+    ]
     rows.sort(key=lambda row: (not row[3], row[1], -row[0], row[4]))
 
     ui_rows = sum(1 for row in rows if row[3])
@@ -64,7 +67,7 @@ def main() -> int:
     print("#")
     print("# 这是由 tool/l10n/extract_strings.py 自动生成的文件，请勿手工编辑。")
     print("# 格式：出现次数 | 类型 | 字面量 | 示例文件")
-    print("# 补充翻译时，把字面量原样作为 key 写进 tool/l10n/zh_cn.json 的 strings 即可。")
+    print("# 补充翻译时，把字面量原样作为 key 写进 tool/l10n/zh_cn*.json 的 strings 即可。")
     print("#")
     print(f"# 未翻译条目：{len(rows)}（疑似界面文案 {ui_rows}，其余可能是技术性字符串）")
     print()

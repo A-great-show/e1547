@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Build-time Simplified Chinese patch for e1547.
 
-The fork keeps tracking upstream one to one: the translation itself lives in
-``tool/l10n/zh_cn.json`` and is applied to the working tree right before
+The fork keeps tracking upstream one to one: the translations live in
+``tool/l10n/zh_cn*.json`` and are applied to the working tree right before
 ``flutter build`` runs. Nothing is committed back, so pulling upstream never
-conflicts and every translation change is a one line diff in the dictionary.
+conflicts and every translation change is a one line diff in a dictionary.
 
 Usage::
 
@@ -33,7 +33,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 LIB = ROOT / "lib"
-DICTIONARY = Path(__file__).resolve().parent / "zh_cn.json"
+DICTIONARY_DIR = Path(__file__).resolve().parent
+DICTIONARY_FILES = sorted(DICTIONARY_DIR.glob("zh_cn*.json"))
 
 SKIP_SUFFIXES = (".g.dart", ".freezed.dart", ".drift.dart")
 
@@ -84,10 +85,19 @@ UI_MARKERS = (
     "placeholder:",
     "name:",
     "return ",
-    "=> " ,
+    "=> ",
     "? '",
     ": '",
 )
+
+
+def load_dictionary() -> dict:
+    """Merge every ``zh_cn*.json`` in this directory into one lookup table."""
+    merged: dict = {}
+    for path in sorted(DICTIONARY_DIR.glob("zh_cn*.json")):
+        data = json.loads(path.read_text(encoding="utf-8"))
+        merged.update(data.get("strings", {}))
+    return merged
 
 
 def _skip_interpolation(src: str, index: int) -> int:
@@ -213,7 +223,7 @@ def patch_source(src: str, table: dict, hits: dict) -> tuple:
 
 def main() -> int:
     dry_run = "--dry-run" in sys.argv
-    table = json.loads(DICTIONARY.read_text(encoding="utf-8"))["strings"]
+    table = load_dictionary()
 
     hits: dict = {}
     changed_files = []
@@ -233,6 +243,7 @@ def main() -> int:
 
     stale = [key for key in table if key not in hits]
 
+    print(f"[l10n] dictionary entries: {len(table)}")
     print(f"[l10n] translations applied: {total}")
     print(f"[l10n] files touched: {len(changed_files)}")
     for name, count in changed_files:
@@ -246,9 +257,9 @@ def main() -> int:
     if summary:
         with open(summary, "a", encoding="utf-8") as handle:
             handle.write("## 汉化补丁\n\n")
+            handle.write(f"* 词典条目：**{len(table)}**，未匹配：**{len(stale)}**\n")
             handle.write(f"* 替换字符串：**{total}**\n")
-            handle.write(f"* 涉及文件：**{len(changed_files)}**\n")
-            handle.write(f"* 词典条目：**{len(table)}**，未匹配：**{len(stale)}**\n\n")
+            handle.write(f"* 涉及文件：**{len(changed_files)}**\n\n")
             handle.write("| 次数 | 文件 |\n| --- | --- |\n")
             for name, count in changed_files:
                 handle.write(f"| {count} | `{name}` |\n")

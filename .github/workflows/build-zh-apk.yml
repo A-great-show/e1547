@@ -19,6 +19,8 @@ on:
       - zh-cn
     paths-ignore:
       - '**.md'
+      - 'tool/l10n/zh_cn*.json'
+      - 'tool/l10n/extracted.txt'
 
 permissions:
   contents: write
@@ -72,7 +74,7 @@ jobs:
         run: |
           mkdir -p out
           # GPL-3.0 §6：随二进制提供「对应源码」，即打完汉化补丁后的完整源码树
-          # （含 pubspec、android、iOS 工程、补丁脚本与构建工作流）
+          # （含 pubspec、android / iOS 工程、补丁脚本与构建工作流）
           tar czf out/e1547-zh-cn-source.tar.gz \
             --exclude='./.git' \
             --exclude='./build' \
@@ -106,16 +108,17 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="zh-cn-latest"
-          NOTES=$(cat <<'EOF'
+          # 用 heredoc 写说明，再用 sed 去掉 YAML 缩进，避免 markdown 被当成代码块
+          NOTES=$(cat <<'EOF' | sed 's/^[[:space:]]*//'
           e1547 简体中文版 —— **非官方修改版**（基于 GPL-3.0 授权的 clynamic/e1547 修改）
 
           **修改声明（GPL-3.0 §5(a)）**：本构建由 A-great-show 于 2026 年起持续修改，
           修改内容为界面文案简体中文化（构建期字符串补丁）与应用内固定 `zh_CN` locale。
-          与原作者无关，未获其背书。
+          与原作者 clragon 无关，未获其背书。
 
           **包含文件**
 
-          * `app-arm64-v8a-release.apk` — 现代手机（2019+）
+          * `app-arm64-v8a-release.apk` — 现代手机（2019 年后）
           * `app-armeabi-v7a-release.apk` — 旧设备
           * `app-universal-release.apk` — 不确定时选这个
           * `e1547-zh-cn-source.tar.gz` — **对应源码**（已应用汉化补丁，GPL-3.0 §6）
@@ -125,7 +128,6 @@ jobs:
           否则会提示「应用未安装」。请勿用官方公开的证书指纹校验本包。
 
           **构建可复现**：`flutter pub get && python3 tool/l10n/apply_zh.py && flutter build apk --release`
-          即可得到与上述 APK 对应的源码与产物。
 
           本构建同样以 GNU GPL v3.0 发布；再分发请遵守该许可证。
           EOF
